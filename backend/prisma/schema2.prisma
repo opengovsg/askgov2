@@ -1,0 +1,107 @@
+//// This is your Prisma schema file,
+//// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//
+//generator client {
+//  provider = "util-client-js"
+//  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+//}
+//
+//datasource db {
+//  provider = "postgresql"
+//  url      = env("DATABASE_URL")
+//}
+//
+//model User {
+//  id               Int              @id @default(autoincrement())
+//  loginName        String           @unique
+//  publicName       String           @unique
+//  canScreen        Boolean
+//  canWriteAnswer   Boolean
+//  canPostAnswer    Boolean
+//  createdAt        DateTime          @default(now())
+//  updatedAt        DateTime          @updatedAt
+//  writtenQuestions Question[]
+//  uppedQuestions   QuestionUppers[]
+//  downedQuestions  QuestionDowners[]
+//  writtenAnswers   Answer[]          @relation("WrittenAnswers")
+//  postedAnswers    Answer[]          @relation("PostedAnswers")
+//  uppedAnswers     AnswerUppers[]
+//  downedAnswers    AnswerDowners[]
+//}
+//
+//model Question {
+//  id        Int               @id @default(autoincrement())
+//  text      String
+//  writer    User              @relation(fields: [writerId], references: [id])
+//  writerId  Int
+//  state     QuestionState     @default(NEW)
+//  createdAt DateTime          @default(now())
+//  updatedAt DateTime          @updatedAt
+//  answers   Answer[]
+//  uppedBy   QuestionUppers[]
+//  downedBy  QuestionDowners[]
+//}
+//
+//enum QuestionState {
+//  NEW
+//  APPROVED
+//  REJECTED
+//}
+//
+//model QuestionUppers {
+//  question   Question @relation(fields: [questionId], references: [id])
+//  questionId Int
+//  user       User     @relation(fields: [userId], references: [id])
+//  userId     Int
+//  createdAt  DateTime @default(now())
+//
+//  @@id([questionId, userId])
+//}
+//
+//model QuestionDowners {
+//  question   Question @relation(fields: [questionId], references: [id])
+//  questionId Int
+//  user       User     @relation(fields: [userId], references: [id])
+//  userId     Int
+//  createdAt  DateTime @default(now())
+//
+//  @@id([questionId, userId])
+//}
+//
+//
+//model Answer {
+//  id         Int             @id @default(autoincrement())
+//  question   Question        @relation(fields: [questionId], references: [id])
+//  questionId Int
+//  text       String
+//  writer     User?           @relation("WrittenAnswers", fields: [writerId], references: [id])
+//  writerId   Int?
+//  poster     User            @relation("PostedAnswers", fields: [posterId], references: [id])
+//  posterId   Int
+//  isOfficial Boolean         @default(false)
+//  createdAt  DateTime        @default(now())
+//  updatedAt  DateTime        @updatedAt
+//  uppedBy    AnswerUppers[]
+//  downedBy   AnswerDowners[]
+//}
+//
+//
+//model AnswerUppers {
+//  answer    Answer   @relation(fields: [answerId], references: [id])
+//  answerId  Int
+//  user      User     @relation(fields: [userId], references: [id])
+//  userId    Int
+//  createdAt DateTime @default(now())
+//
+//  @@id([answerId, userId])
+//}
+//
+//model AnswerDowners {
+//  answer    Answer   @relation(fields: [answerId], references: [id])
+//  answerId  Int
+//  user      User     @relation(fields: [userId], references: [id])
+//  userId    Int
+//  createdAt DateTime @default(now())
+//
+//  @@id([answerId, userId])
+//}

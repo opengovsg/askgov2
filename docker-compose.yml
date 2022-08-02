@@ -1,0 +1,45 @@
+# This docker-compose file is only for local development purposes.
+version: '3'
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - '4566:4566'
+    environment:
+      - SERVICES=s3
+      - DATA_DIR=/tmp/localstack/data
+      - FILE_BUCKET_NAME
+    volumes:
+      - './init-localstack.sh:/docker-entrypoint-initaws.d/init-localstack.sh' # Initialise the bucket.
+      - './.localstack:/tmp/localstack'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - '1080:80'
+      - '1025:25'
+
+  db:
+    image: "postgres:14-alpine"
+    environment:
+      POSTGRES_USER: askgov
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: askgov_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - askgov_data:/var/lib/postgresql/data
+
+  opensearch:
+    image: opensearchproject/opensearch:1.1.0
+    container_name: askgovsg_os
+    environment:
+      - "discovery.type=single-node"
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+    ports:
+      - 9200:9200
+      - 9600:9600 # required for Performance Analyzer
+
+volumes:
+  askgov_data:

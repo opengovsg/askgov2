@@ -1,0 +1,15 @@
+{
+  "name": "canaskgov",
+  "version": "0.0.1",
+  "description": "\"can.ask.gov.sg - Authoritative Answers to Public Questions\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm --prefix server start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Richard C. Davis",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
+}

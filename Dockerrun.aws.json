@@ -1,0 +1,18 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "@REPO:@TAG",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 3000
+    }
+  ],
+  "Volumes": [
+    {
+      "HostDirectory": "/var/lib/cloud/data",
+      "ContainerDirectory": "/var/lib/cloud/data"
+    }
+  ]
+}
