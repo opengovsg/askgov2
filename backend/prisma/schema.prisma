@@ -11,12 +11,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ScreenState {
+  NEW
+  APPROVED
+  REJECTED
+}
+
 model Question {
-  id        Int               @id @default(autoincrement())
-  body      String
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  answers   Answer[]
+  id          Int             @id @default(autoincrement())
+  body        String
+  screenState ScreenState     @default(NEW)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  answers     Answer[]
 }
 
 model Answer {
@@ -24,4 +31,13 @@ model Answer {
   question   Question        @relation(fields: [questionId], references: [id])
   questionId Int
   body       String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model Session {
+  id          String         @id
+  sid         String         @unique
+  data        String
+  expiresAt   DateTime
 }

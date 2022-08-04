@@ -8,14 +8,23 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  Query,
+  Logger,
 } from '@nestjs/common'
-import { QuestionService, Question } from './question.service'
+import {
+  QuestionService,
+  Question,
+  ScreenState,
+  QuestionWhereInput,
+  matchScreenState,
+} from './question.service'
 
 import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
 
 @Controller({ path: 'question', version: '1' })
 export class QuestionController {
+  private readonly logger = new Logger(QuestionController.name)
   constructor(private readonly questionService: QuestionService) {}
 
   @Post()
@@ -24,8 +33,23 @@ export class QuestionController {
   }
 
   @Get()
-  findAll(): Promise<Question[]> {
-    return this.questionService.findMany({})
+  findAll(@Query('screenState') screenState?: string): Promise<Question[]> {
+    let where: QuestionWhereInput | undefined = undefined
+    if (screenState !== undefined) {
+      const match = matchScreenState(screenState)
+      if (match) {
+        where = { screenState: matchScreenState(screenState) }
+      } else {
+        throw new HttpException(
+          'Invalid screenState query parameter',
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+    }
+    return this.questionService.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
   }
 
   @Get(':id')

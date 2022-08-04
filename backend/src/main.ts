@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { NestExpressApplication } from '@nestjs/platform-express'
-import { PrismaService } from './util/prisma.service'
+import { PrismaService } from './util'
 import { ValidationPipe, VersioningType } from '@nestjs/common'
 
 async function bootstrap() {

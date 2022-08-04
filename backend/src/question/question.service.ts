@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common'
-import { Prisma, Question } from '@prisma/client'
+import { Injectable, Logger } from '@nestjs/common'
+import { Prisma, Question, ScreenState } from '@prisma/client'
 import { PrismaService } from '../util'
 import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
 
 // re-export types used by service interface
-export { Question } from '@prisma/client'
+export { Question, ScreenState } from '@prisma/client'
 export type QuestionWhereUniqueInput = Prisma.QuestionWhereUniqueInput
 export type QuestionCreateInput = Prisma.QuestionCreateInput
 export type QuestionWhereInput = Prisma.QuestionWhereInput
@@ -14,8 +14,14 @@ export type QuestionOrderByWithRelationAndSearchRelevanceInput =
 export type QuestionUpdateInput = Prisma.QuestionUpdateInput
 export type QuestionInclude = Prisma.QuestionInclude
 
+// This method works for Typescript string enums, and it appears that this is what Prisma enums are.
+export function matchScreenState(value: string): ScreenState | undefined {
+  return Object.values(ScreenState).find((v) => v === value)
+}
+
 @Injectable()
 export class QuestionService {
+  private readonly logger = new Logger(QuestionService.name)
   constructor(private prisma: PrismaService) {}
 
   create(data: QuestionCreateInput): Promise<Question> {

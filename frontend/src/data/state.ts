@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react'
 import { User } from './user'
-import { Question, QuestionState } from './question'
+import { Question, ScreenState } from './question'
 import { Answer } from './answer'
 
 export interface State {
@@ -74,8 +74,8 @@ export class AppState {
         id: maxId + 1,
         submitter: user,
         body: text,
-        createdAt: new Date(),
-        state: QuestionState.NEW,
+        createdAt: new Date().toISOString(),
+        screenState: ScreenState.NEW,
       }
       return { ...state, questions: [...state.questions, newQuestion] }
     })
@@ -94,7 +94,7 @@ export class AppState {
 
   getAnswerByQuestion = (question: Question) => {
     return this.state.answers.filter(
-      (a) => a.question.id === question.id,
+      (a) => a.question && a.question.id === question.id,
     ) as readonly Answer[]
   }
 
@@ -167,57 +167,57 @@ const questions: Question[] = [
     id: ++id,
     body: 'Dolores illum tempora totam hic sint dolores iure velit dignissimos ut amet consequuntur sint quidem pariatur?',
     submitter: users[0],
-    createdAt: new Date('2022-07-20T11:09:04+08:00'),
-    state: QuestionState.APPROVED,
+    createdAt: '2022-07-20T11:09:04+08:00',
+    screenState: ScreenState.APPROVED,
   },
   {
     id: ++id,
     body: 'Corrupti maxime eos non natus. Cumque fugit unde officia eaque et consequatur et facilis?',
     submitter: users[0],
-    createdAt: new Date('2022-07-21T11:09:04+08:00'),
-    state: QuestionState.APPROVED,
+    createdAt: '2022-07-21T11:09:04+08:00',
+    screenState: ScreenState.APPROVED,
   },
   {
     id: ++id,
     body: 'Qui aut omnis non aliquid?',
     submitter: users[0],
-    createdAt: new Date('2022-07-22T11:09:04+08:00'),
-    state: QuestionState.APPROVED,
+    createdAt: '2022-07-22T11:09:04+08:00',
+    screenState: ScreenState.APPROVED,
   },
   {
     id: ++id,
     body: 'Architecto nulla laboriosam autem rerum dolorum in?',
     submitter: users[0],
-    createdAt: new Date('2022-07-23T11:09:04+08:00'),
-    state: QuestionState.APPROVED,
+    createdAt: '2022-07-23T11:09:04+08:00',
+    screenState: ScreenState.APPROVED,
   },
   {
     id: ++id,
     body: 'Sit autem culpa atque tempora id placeat architecto quae temporibus amet est aperiam?',
     submitter: users[0],
-    createdAt: new Date('2022-07-26T11:09:04+08:00'),
-    state: QuestionState.NEW,
+    createdAt: '2022-07-26T11:09:04+08:00',
+    screenState: ScreenState.NEW,
   },
   {
     id: ++id,
     body: 'Id alias qui totam dicta consequatur est qui at voluptas quia?',
     submitter: users[0],
-    createdAt: new Date('2022-07-26T12:09:04+08:00'),
-    state: QuestionState.NEW,
+    createdAt: '2022-07-26T12:09:04+08:00',
+    screenState: ScreenState.NEW,
   },
   {
     id: ++id,
     body: 'In iste veniam qui amet iste molestias et nemo occaecati optio?',
     submitter: users[0],
-    createdAt: new Date('2022-07-25T11:09:04+08:00'),
-    state: QuestionState.REJECTED,
+    createdAt: '2022-07-25T11:09:04+08:00',
+    screenState: ScreenState.REJECTED,
   },
   {
     id: ++id,
     body: 'Consequatur tenetur et dolores laborum rerum temporibus nemo error. Quas veritatis ut vel illum sed ut officiis ratione libero ab?',
     submitter: users[0],
-    createdAt: new Date('2022-07-24T11:09:04+08:00'),
-    state: QuestionState.REJECTED,
+    createdAt: '2022-07-24T11:09:04+08:00',
+    screenState: ScreenState.REJECTED,
   },
 ]
 
@@ -231,7 +231,7 @@ const answers: Answer[] = [
     submitter: users[2],
     ups: 21,
     downs: 0,
-    createdAt: new Date('2022-07-20T16:09:04+08:00'),
+    createdAt: '2022-07-20T16:09:04+08:00',
   },
   {
     id: ++id,
@@ -240,13 +240,13 @@ const answers: Answer[] = [
     submitter: users[2],
     ups: 5,
     downs: 13,
-    createdAt: new Date('2022-07-21T15:09:04+08:00'),
+    createdAt: '2022-07-21T15:09:04+08:00',
   },
 ]
 
 export const initialState: State = {
   users,
-  currentUser: 2,
+  currentUser: 0,
   questions,
   answers,
 }
