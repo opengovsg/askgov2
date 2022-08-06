@@ -2,6 +2,8 @@ import React, { FC } from 'react'
 import { Button, Card, Typography } from 'antd'
 import { Question } from '../data/question'
 import { Link } from 'react-router-dom'
+import { format } from 'date-fns'
+import { DATE_FORMAT } from '../constants'
 
 const { Text, Title } = Typography
 
@@ -23,7 +25,12 @@ export const QuestionCard: FC<QuestionCardProps> = (
       {/*  </Text>*/}
       {/*</p>*/}
       <Title level={5}>{props.question.body}</Title>
-      {props.showAnswerBtn && <Button>Answer</Button>}
+      <p>
+        <Text type="secondary">
+          {format(new Date(props.question.createdAt), DATE_FORMAT)}
+        </Text>
+      </p>
+      {/*{props.showAnswerBtn && <Button>Answer</Button>}*/}
     </Card>
   )
 }

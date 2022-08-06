@@ -1,7 +1,7 @@
 import { User } from './user'
 import { Answer } from './answer'
 
-export enum QuestionState {
+export enum ScreenState {
   NEW = 'NEW',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
@@ -10,9 +10,9 @@ export enum QuestionState {
 export interface Question {
   id: number
   body: string
-  submitter?: User
-  state?: QuestionState
+  author: User
+  screenState: ScreenState
   answers?: Answer[]
-  createdAt: Date
-  updatedAt?: Date
+  createdAt: string
+  updatedAt?: string
 }

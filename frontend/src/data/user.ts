@@ -1,9 +1,10 @@
 export interface User {
-  id: number;
-  login: string;
-  name: string;
-  position?: string;
-  headline: string;
-  canScreen: boolean;
-  canAnswer: boolean;
+  id: number
+  publicName?: string
+  createdAt?: string
+  updatedAt?: string
+  position?: string
+  headline?: string
+  canScreen?: boolean
+  canAnswer?: boolean
 }

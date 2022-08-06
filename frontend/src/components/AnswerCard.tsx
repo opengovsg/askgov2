@@ -4,6 +4,8 @@ import { UpCircleOutlined, DownCircleOutlined } from '@ant-design/icons'
 import { Answer } from '../data/answer'
 import { Link } from 'react-router-dom'
 import { atom, useAtom } from 'jotai'
+import { format } from 'date-fns'
+import { DATE_FORMAT } from '../constants'
 
 const { Text, Title } = Typography
 
@@ -27,11 +29,15 @@ export const AnswerCard: FC<AnswerCardProps> = (props: AnswerCardProps) => {
       {/*    </Link>*/}
       {/*  </Text>*/}
       {/*</p>*/}
-      {props.showQuestion && (
+      {props.showQuestion && props.answer.question && (
         <Title level={5}>{props.answer.question.body}</Title>
       )}
       <Text>{props.answer.body}</Text>
-      <br />
+      <p>
+        <Text type="secondary">
+          {format(new Date(props.answer.createdAt), DATE_FORMAT)}
+        </Text>
+      </p>
       <Button icon={<UpCircleOutlined />} onClick={props.onUp}>
         {`${props.answer.ups}`}
       </Button>

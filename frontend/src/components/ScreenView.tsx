@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { Button, Table, Tabs } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { AppState } from '../data/state'
-import { Question, QuestionState } from '../data/question'
+import { Question, ScreenState } from '../data/question'
 
 const { TabPane } = Tabs
 
@@ -13,7 +13,7 @@ interface TableRow {
 
 interface QuestionScreenTableProps {
   appState: AppState
-  questionState: QuestionState
+  questionState: ScreenState
   onApprove?: (question: Question) => void
   onReject?: (question: Question) => void
 }
@@ -22,7 +22,7 @@ const QuestionScreenTable: FC<QuestionScreenTableProps> = (
   props: QuestionScreenTableProps,
 ) => {
   const data: TableRow[] = props.appState.questions
-    .filter((q) => q.state == props.questionState)
+    .filter((q) => q.screenState === props.questionState)
     .map((q) => ({
       key: q.id,
       question: q,
@@ -46,10 +46,10 @@ const QuestionScreenTable: FC<QuestionScreenTableProps> = (
       dataIndex: 'question',
       render: (_, { question }) => (
         <>
-          {props.questionState != QuestionState.APPROVED && (
+          {props.questionState !== ScreenState.APPROVED && (
             <Button type="link">Approve</Button>
           )}
-          {props.questionState != QuestionState.REJECTED && (
+          {props.questionState !== ScreenState.REJECTED && (
             <Button type="link">Reject</Button>
           )}
         </>
@@ -71,7 +71,7 @@ export const ScreenView: FC<ScreenViewProps> = (props: ScreenViewProps) => {
       // margin: vertical | horizontal
       style={{ margin: '30px 0' }}
     >
-      {Object.values(QuestionState).map((state) => (
+      {Object.values(ScreenState).map((state) => (
         <TabPane tab={state} key={state}>
           <QuestionScreenTable
             appState={props.appState}

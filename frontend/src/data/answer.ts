@@ -3,11 +3,12 @@ import { User } from './user'
 
 export interface Answer {
   id: number
-  question: Question
+  question?: Question
+  questionId?: number
   body: string
-  submitter?: User
+  author?: User
   ups?: number
   downs?: number
-  createdAt: Date
-  updatedAt?: Date
+  createdAt: string
+  updatedAt?: string
 }
