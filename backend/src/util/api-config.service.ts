@@ -17,7 +17,9 @@ export const validationSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'staging', 'production', 'test')
     .default('development'),
+  DATABASE_URL: Joi.string().uri().required(),
   APP_PORT: Joi.number().default(6174), // The port that this service runs on.
+  FRONTEND_URL: Joi.string().uri().required(), // See auth.controller ToDo: can't rely on this default.
   SGID_SCOPES: Joi.array()
     .items(Joi.string())
     .default(['openid', 'myinfo.name', 'myinfo.nric_number']),
@@ -26,16 +28,27 @@ export const validationSchema = Joi.object({
   SGID_PRIVATE_KEY: Joi.string().required(),
   SGID_REDIRECT_HOSTNAME: Joi.string().default('http://localhost:6174'),
   SGID_HOSTNAME: Joi.string().default('https://api.id.gov.sg'),
+  SESSION_SECRET: Joi.string().required(),
+  SESSION_NAME: Joi.string().default('CanAskGovSession'),
+  SESSION_MAX_AGE: Joi.number().default(7 * 24 * 60 * 60 * 1000), // ms
+  SESSION_SECURE: Joi.boolean().required(), // disable in local dev env
+  SESSION_CHECK_PERIOD: Joi.number().default(2 * 60 * 1000), // ms
 })
 
 interface EnvironmentVariables {
   APP_PORT: number
+  FRONTEND_URL: string
   SGID_SCOPES: string[]
   SGID_CLIENT_ID: string
   SGID_CLIENT_SECRET: string
   SGID_PRIVATE_KEY: string
   SGID_REDIRECT_HOSTNAME: string
   SGID_HOSTNAME: string
+  SESSION_SECRET: string
+  SESSION_NAME: string
+  SESSION_MAX_AGE: number
+  SESSION_SECURE: boolean
+  SESSION_CHECK_PERIOD: number
 }
 
 @Injectable()
@@ -53,6 +66,10 @@ export class ApiConfigService {
 
   get appPort(): number {
     return this.configService.get('APP_PORT')
+  }
+
+  get frontendUrl(): string {
+    return this.configService.get('FRONTEND_URL')
   }
 
   get sgidScopes(): string[] {
@@ -77,5 +94,25 @@ export class ApiConfigService {
 
   get sgidHostname(): string {
     return this.configService.get('SGID_HOSTNAME')
+  }
+
+  get sessionSecret(): string {
+    return this.configService.get('SESSION_SECRET')
+  }
+
+  get sessionName(): string {
+    return this.configService.get('SESSION_NAME')
+  }
+
+  get sessionMaxAge(): number {
+    return this.configService.get('SESSION_MAX_AGE')
+  }
+
+  get sessionSecure(): boolean {
+    return this.configService.get('SESSION_SECURE')
+  }
+
+  get sessionCheckPeriod(): number {
+    return this.configService.get('SESSION_CHECK_PERIOD')
   }
 }

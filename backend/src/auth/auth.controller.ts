@@ -12,11 +12,13 @@ import {
 import { AuthService } from './auth.service'
 import { Request } from 'express'
 import { UserService, PublicUser } from '../user'
+import { ApiConfigService } from '../util'
 
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
   private readonly logger = new Logger(AuthController.name)
   constructor(
+    private apiConfigService: ApiConfigService,
     private authService: AuthService,
     private userService: UserService,
   ) {}
@@ -43,8 +45,10 @@ export class AuthController {
   }
 
   // Handles both user registration and user log in
+  // ToDo: Refactor this to handle redirect with express response.
+  // Using the decorator does not allow us to take advantage of ApiConfigService.
   @Get('callback')
-  @Redirect('http://localhost:3000')
+  @Redirect(process.env.FRONTEND_URL)
   async handleCallback(
     @Session() session: Request['session'],
     @Query('code') code: string,

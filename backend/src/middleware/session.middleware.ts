@@ -1,14 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common'
 import session from 'express-session'
-import { PrismaService } from '../util'
+import { ApiConfigService, PrismaService } from '../util'
 import { NextFunction, Request, RequestHandler, Response } from 'express'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
-
-const SESSION_SECRET = 'Slartibartfast'
-const SESSION_NAME = 'CanAskGovSession'
-const SESSION_MAX_AGE = 7 * 24 * 60 * 60 * 1000 // ms
-const SESSION_SECURE = false
-const SESSION_CHECK_PERIOD = 2 * 60 * 1000 //ms
 
 export interface UserSession {
   userId?: number
@@ -23,20 +17,23 @@ declare module 'express-session' {
 export class SessionMiddleware implements NestMiddleware {
   private middleware: RequestHandler
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private apiConfigService: ApiConfigService,
+  ) {
     this.middleware = session({
       resave: false,
       saveUninitialized: false,
-      secret: SESSION_SECRET,
-      name: SESSION_NAME,
+      secret: this.apiConfigService.sessionSecret,
+      name: this.apiConfigService.sessionName,
       cookie: {
         httpOnly: true,
         sameSite: 'strict',
-        maxAge: SESSION_MAX_AGE,
-        secure: SESSION_SECURE, // disable in local dev env
+        maxAge: this.apiConfigService.sessionMaxAge,
+        secure: this.apiConfigService.sessionSecure, // disable in local dev env
       },
       store: new PrismaSessionStore(prisma, {
-        checkPeriod: SESSION_CHECK_PERIOD, //ms
+        checkPeriod: this.apiConfigService.sessionCheckPeriod, //ms
         dbRecordIdIsSessionId: true,
         dbRecordIdFunction: undefined,
       }),
