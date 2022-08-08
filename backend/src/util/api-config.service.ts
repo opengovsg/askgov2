@@ -19,6 +19,7 @@ export const validationSchema = Joi.object({
     .default('development'),
   DATABASE_URL: Joi.string().uri().required(),
   APP_PORT: Joi.number().default(6174), // The port that this service runs on.
+  APP_DOMAIN: Joi.string().hostname().default('localhost'), // The domain name of the host
   FRONTEND_URL: Joi.string().uri().required(), // See auth.controller ToDo: can't rely on this default.
   SGID_SCOPES: Joi.array()
     .items(Joi.string())
@@ -37,6 +38,7 @@ export const validationSchema = Joi.object({
 
 interface EnvironmentVariables {
   APP_PORT: number
+  APP_DOMAIN: string
   FRONTEND_URL: string
   SGID_SCOPES: string[]
   SGID_CLIENT_ID: string
@@ -66,6 +68,10 @@ export class ApiConfigService {
 
   get appPort(): number {
     return this.configService.get('APP_PORT')
+  }
+
+  get appDomain(): string {
+    return this.configService.get('APP_DOMAIN')
   }
 
   get frontendUrl(): string {
