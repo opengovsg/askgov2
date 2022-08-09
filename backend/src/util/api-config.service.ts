@@ -26,7 +26,9 @@ export const validationSchema = Joi.object({
   SGID_CLIENT_ID: Joi.string().default('CANASKGOV-TEST'),
   SGID_CLIENT_SECRET: Joi.string().required(),
   SGID_PRIVATE_KEY: Joi.string().required(),
-  SGID_REDIRECT_HOSTNAME: Joi.string().default('http://localhost:6174'),
+  SGID_REDIRECT_URL: Joi.string().default(
+    'http://localhost:3000/auth-callback',
+  ),
   SGID_HOSTNAME: Joi.string().default('https://api.id.gov.sg'),
   SESSION_SECRET: Joi.string().required(),
   SESSION_NAME: Joi.string().default('CanAskGovSession'),
@@ -46,7 +48,7 @@ interface EnvironmentVariables {
   SGID_CLIENT_ID: string
   SGID_CLIENT_SECRET: string
   SGID_PRIVATE_KEY: string
-  SGID_REDIRECT_HOSTNAME: string
+  SGID_REDIRECT_URL: string
   SGID_HOSTNAME: string
   SESSION_SECRET: string
   SESSION_NAME: string
@@ -94,8 +96,8 @@ export class ApiConfigService {
     return this.configService.get('SGID_PRIVATE_KEY')
   }
 
-  get sgidRedirectHostname(): string {
-    return this.configService.get('SGID_REDIRECT_HOSTNAME')
+  get sgidRedirectUrl(): string {
+    return this.configService.get('SGID_REDIRECT_URL')
   }
 
   get sgidHostname(): string {

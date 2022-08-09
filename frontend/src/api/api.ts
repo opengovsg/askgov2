@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../constants'
  * Automatically catches 403 errors and invalidates authentication state.
  */
 export const api = wretch(API_BASE_URL + '/api/v1')
+  .options({ credentials: 'include', mode: 'cors' })
   .addon(QueryStringAddon)
   .catcher(403, (err) => {
     window.dispatchEvent(new Event('unauthorized-event'))

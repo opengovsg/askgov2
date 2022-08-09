@@ -22,20 +22,14 @@ interface ParsedUserInfo {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name)
   private sgidClient: SgidClient
-  private publicRedirect: string
 
   constructor(private apiConfigService: ApiConfigService) {
-    this.publicRedirect = new URL(
-      '/auth-callback',
-      this.apiConfigService.sgidRedirectHostname,
-    ).toString()
-
     this.sgidClient = new SgidClient({
       clientId: this.apiConfigService.sgidClientId,
       clientSecret: this.apiConfigService.sgidClientSecret,
       privateKey: this.apiConfigService.sgidPrivateKey,
       // Client requires at least a default uri to be registered
-      redirectUri: this.publicRedirect,
+      redirectUri: this.apiConfigService.sgidRedirectUrl,
       // hostname: SGID_HOSTNAME,
     })
   }
@@ -47,7 +41,7 @@ export class AuthService {
       '/', // In the future, pass the user's location here, so we can navigate back to it
       this.apiConfigService.sgidScopes,
       null,
-      this.publicRedirect,
+      this.apiConfigService.sgidRedirectUrl,
     )
   }
 
