@@ -28,7 +28,7 @@ export class SessionMiddleware implements NestMiddleware {
       name: this.apiConfigService.sessionName,
       cookie: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
         domain: this.apiConfigService.frontendDomain,
         maxAge: this.apiConfigService.sessionMaxAge,
         secure: this.apiConfigService.sessionSecure, // disable in local dev env

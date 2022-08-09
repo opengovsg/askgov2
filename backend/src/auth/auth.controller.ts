@@ -48,12 +48,11 @@ export class AuthController {
   // ToDo: Refactor this to handle redirect with express response.
   // Using the decorator does not allow us to take advantage of ApiConfigService.
   @Get('callback')
-  @Redirect(process.env.FRONTEND_URL)
   async handleCallback(
     @Session() session: Request['session'],
     @Query('code') code: string,
     @Query('state') state: string,
-  ): Promise<void> {
+  ): Promise<{ userId: number | undefined }> {
     const { openid, nric, name } = await this.authService.handleCallback({
       code,
     })
@@ -72,9 +71,9 @@ export class AuthController {
         name,
       },
     })
-    this.logger.log(JSON.stringify(user, null, 2))
 
     session.userId = user.id
+    return { userId: user.id }
   }
 
   @Post('logout')

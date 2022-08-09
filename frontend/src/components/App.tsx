@@ -6,6 +6,7 @@ import { State, initialState, AppState } from '../data/state'
 
 import { Frame } from './Frame'
 import { HomeView } from './HomeView'
+import { AuthCallback } from './AuthCallback'
 import { AnswerView } from './AnswerView'
 import { QuestionView } from './QuestionView'
 import { ProfileView } from './ProfileView'
@@ -26,6 +27,7 @@ export const App: FC = () => {
         <Routes>
           <Route path={routes.index} element={<Frame appState={appState} />}>
             <Route index element={<HomeView appState={appState} />} />
+            <Route path={routes.authCallback} element={<AuthCallback />} />
             <Route
               path={routes.answer}
               element={<AnswerView appState={appState} />}

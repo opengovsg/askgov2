@@ -6,4 +6,5 @@ export const routes = {
   screen: '/screen',
   login: '/login',
   health: '/health',
+  authCallback: '/auth-callback',
 }

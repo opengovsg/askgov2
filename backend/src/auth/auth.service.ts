@@ -26,7 +26,7 @@ export class AuthService {
 
   constructor(private apiConfigService: ApiConfigService) {
     this.publicRedirect = new URL(
-      '/api/v1/auth/callback',
+      '/auth-callback',
       this.apiConfigService.sgidRedirectHostname,
     ).toString()
 
@@ -44,7 +44,7 @@ export class AuthService {
     url: string
   } {
     return this.sgidClient.authorizationUrl(
-      'state',
+      '/', // In the future, pass the user's location here, so we can navigate back to it
       this.apiConfigService.sgidScopes,
       null,
       this.publicRedirect,
