@@ -19,7 +19,6 @@ export const validationSchema = Joi.object({
     .default('development'),
   DATABASE_URL: Joi.string().uri().required(),
   APP_PORT: Joi.number().default(6174), // The port that this service runs on.
-  FRONTEND_DOMAIN: Joi.string().hostname().default('localhost'), // The domain name of the frontend host
   FRONTEND_URL: Joi.string().uri().required(), // See auth.controller ToDo: can't rely on this default.
   SGID_SCOPES: Joi.array()
     .items(Joi.string())
@@ -31,6 +30,10 @@ export const validationSchema = Joi.object({
   SGID_HOSTNAME: Joi.string().default('https://api.id.gov.sg'),
   SESSION_SECRET: Joi.string().required(),
   SESSION_NAME: Joi.string().default('CanAskGovSession'),
+  SESSION_SAME_SITE: Joi.string()
+    .valid('strict', 'lax', 'none')
+    .default('strict'),
+  SESSION_DOMAIN: Joi.string().hostname(), // The domain for the session cookie
   SESSION_MAX_AGE: Joi.number().default(7 * 24 * 60 * 60 * 1000), // ms
   SESSION_SECURE: Joi.boolean().required(), // disable in local dev env
   SESSION_CHECK_PERIOD: Joi.number().default(2 * 60 * 1000), // ms
@@ -38,7 +41,6 @@ export const validationSchema = Joi.object({
 
 interface EnvironmentVariables {
   APP_PORT: number
-  FRONTEND_DOMAIN: string
   FRONTEND_URL: string
   SGID_SCOPES: string[]
   SGID_CLIENT_ID: string
@@ -48,6 +50,8 @@ interface EnvironmentVariables {
   SGID_HOSTNAME: string
   SESSION_SECRET: string
   SESSION_NAME: string
+  SESSION_SAME_SITE: string
+  SESSION_DOMAIN?: string
   SESSION_MAX_AGE: number
   SESSION_SECURE: boolean
   SESSION_CHECK_PERIOD: number
@@ -68,10 +72,6 @@ export class ApiConfigService {
 
   get appPort(): number {
     return this.configService.get('APP_PORT')
-  }
-
-  get frontendDomain(): string {
-    return this.configService.get('FRONTEND_DOMAIN')
   }
 
   get frontendUrl(): string {
@@ -108,6 +108,14 @@ export class ApiConfigService {
 
   get sessionName(): string {
     return this.configService.get('SESSION_NAME')
+  }
+
+  get sessionSameSite(): 'lax' | 'strict' | 'none' {
+    return this.configService.get('SESSION_SAME_SITE')
+  }
+
+  get sessionDomain(): string | undefined {
+    return this.configService.get('SESSION_DOMAIN')
   }
 
   get sessionMaxAge(): number {
