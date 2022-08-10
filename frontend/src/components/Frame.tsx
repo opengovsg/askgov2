@@ -1,6 +1,5 @@
 import React, { FC, useState, ReactInstance } from 'react'
 import { Link, Outlet, useNavigate, useOutletContext } from 'react-router-dom'
-import { State, initialState, AppState } from '../data/state'
 import { SelectEventHandler } from 'rc-menu/lib/interface'
 
 import {
@@ -35,9 +34,7 @@ const { Header, Content } = Layout
 //   return useOutletContext<ContextType>()
 // }
 
-interface FrameProps {
-  appState: AppState
-}
+interface FrameProps {}
 
 function useCurrentUser() {
   return useQuery(['whoami'], () =>

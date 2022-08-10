@@ -1,21 +1,19 @@
-import React, { FC } from 'react';
-import { Button } from 'antd';
-import {AppState} from "../data/state";
-import {QuestionList} from "./QuestionList";
-
+import React, { FC } from 'react'
+import { Button } from 'antd'
+import { Question } from '../data/question'
+import { QuestionList } from './QuestionList'
 
 interface AnswerViewProps {
-  appState: AppState,
+  questions?: Question[]
 }
 
 export const AnswerView: FC<AnswerViewProps> = (props: AnswerViewProps) => {
-  const currentUser = props.appState.getCurrentUser();
   return (
     <QuestionList
-      questions={props.appState.questions}
       showAnswerBtn={true}
       verticalMargin="30px"
+      onUp={() => {}}
+      onDown={() => {}}
     />
-  );
+  )
 }
-

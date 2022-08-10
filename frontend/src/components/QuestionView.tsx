@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
 
 import { Button, Card, Typography } from 'antd'
-import { AppState } from '../data/state'
 import { QuestionCard } from './QuestionCard'
 import { AnswerList } from './AnswerList'
 import { useQuery } from '@tanstack/react-query'
@@ -14,19 +13,18 @@ function useQuestion(id?: string) {
   if (id === undefined) {
     id = 'none'
   }
-  return useQuery([`question-${id}`], () =>
+  return useQuery(['questionDetail', id], () =>
     api.url(`/question/${id}`).get().json<Question>(),
   )
 }
 
 interface QuestionViewProps {
-  appState: AppState
+  currentUser?: User
 }
 
 export const QuestionView: FC<QuestionViewProps> = (
   props: QuestionViewProps,
 ) => {
-  const currentUser = props.appState.getCurrentUser()
   const { questionId } = useParams()
 
   const {
@@ -58,16 +56,20 @@ export const QuestionView: FC<QuestionViewProps> = (
     >
       <QuestionCard
         question={question}
+        onUp={() => {}}
+        onDown={() => {}}
+        up={false}
+        down={false}
         key={question.id}
-        showAnswerBtn={currentUser?.canAnswer === true}
+        showAnswerBtn={props.currentUser?.canAnswer === true}
       />
       {question.answers && (
         <AnswerList
           showQuestion={false}
           answers={question.answers}
           verticalMargin="30px"
-          onUpBuilder={props.appState.getOnUpBuilder}
-          onDownBuilder={props.appState.getOnDownBuilder}
+          onUpBuilder={(answer) => () => {}}
+          onDownBuilder={(answer) => () => {}}
         />
       )}
     </div>

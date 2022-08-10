@@ -13,6 +13,7 @@ import {
   Session,
   UnauthorizedException,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common'
 import {
   QuestionService,
@@ -22,6 +23,8 @@ import {
   matchScreenState,
   QuestionSelect,
   AnswerSelect,
+  QuestionInclude,
+  AnswerInclude,
 } from './question.service'
 
 import { CreateQuestionDto } from './dto/create-question.dto'
@@ -35,15 +38,12 @@ export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @Post()
-  @UseGuards(new AuthGuard())
+  @UseGuards(AuthGuard)
   create(
     @Session() session: Request['session'],
     @Body() createQuestionDto: CreateQuestionDto,
   ) {
     const userId = session.userId! // Guard ensures this is valid.
-    if (userId === undefined) {
-      throw new UnauthorizedException('Must log in to create a question')
-    }
     return this.questionService.create({
       ...createQuestionDto,
       author: { connect: { id: userId } },
@@ -82,31 +82,31 @@ export class QuestionController {
       },
     }
 
-    let answerSelect: AnswerSelect = {
-      id: true,
-      body: true,
-      createdAt: true,
-      _count: {
-        select: {
-          uppedBy: true,
-          downedBy: true,
-        },
-      },
-    }
+    // let answerSelect: AnswerSelect = {
+    //   id: true,
+    //   body: true,
+    //   createdAt: true,
+    //   _count: {
+    //     select: {
+    //       uppedBy: true,
+    //       downedBy: true,
+    //     },
+    //   },
+    // }
 
     if (userId) {
-      answerSelect.uppedBy = {
-        where: { userId },
-        select: {
-          createdAt: true,
-        },
-      }
-      answerSelect.downedBy = {
-        where: { userId },
-        select: {
-          createdAt: true,
-        },
-      }
+      // answerSelect.uppedBy = {
+      //   where: { userId },
+      //   select: {
+      //     createdAt: true,
+      //   },
+      // }
+      // answerSelect.downedBy = {
+      //   where: { userId },
+      //   select: {
+      //     createdAt: true,
+      //   },
+      // }
       questionSelect.uppedBy = {
         where: { userId },
         select: {
@@ -121,9 +121,9 @@ export class QuestionController {
       }
     }
 
-    questionSelect.answers = {
-      select: answerSelect,
-    }
+    // questionSelect.answers = {
+    //   select: answerSelect,
+    // }
 
     const found = this.questionService.findMany({
       where,
@@ -139,14 +139,62 @@ export class QuestionController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    if (id > 0) {
-      return this.questionService.findOne({
-        where: { id },
-        include: { answers: true },
-      })
+  findOne(@Session() session: Request['session'], @Param('id') id: number) {
+    const { userId } = session
+    try {
+      let include: QuestionInclude = {
+        _count: {
+          select: {
+            uppedBy: true,
+            downedBy: true,
+          },
+        },
+      }
+
+      let answerInclude: AnswerInclude = {
+        _count: {
+          select: {
+            uppedBy: true,
+            downedBy: true,
+          },
+        },
+      }
+
+      if (userId) {
+        answerInclude.uppedBy = {
+          where: { userId },
+          select: {
+            createdAt: true,
+          },
+        }
+        answerInclude.downedBy = {
+          where: { userId },
+          select: {
+            createdAt: true,
+          },
+        }
+        include.uppedBy = {
+          where: { userId },
+          select: {
+            createdAt: true,
+          },
+        }
+        include.downedBy = {
+          where: { userId },
+          select: {
+            createdAt: true,
+          },
+        }
+      }
+
+      include.answers = {
+        include: answerInclude,
+      }
+
+      return this.questionService.findOne(id, include)
+    } catch (e) {
+      throw new BadRequestException(e, 'Invalid question id')
     }
-    throw new HttpException('Invalid question id', HttpStatus.BAD_REQUEST)
   }
 
   @Patch(':id')

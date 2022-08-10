@@ -1,6 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../util'
-import { Prisma, AnswerUpper, QuestionUpper } from '@prisma/client'
+import {
+  Prisma,
+  AnswerUpper,
+  QuestionUpper,
+  PrismaPromise,
+  AnswerDowner,
+} from '@prisma/client'
 import { QuestionUpperInclude } from './question-upper.service'
 
 export { AnswerUpper } from '@prisma/client'
@@ -16,7 +22,7 @@ export class AnswerUpperService {
   private readonly logger = new Logger(AnswerUpperService.name)
   constructor(private prisma: PrismaService) {}
 
-  async upsert(userId: number, answerId: number): Promise<AnswerUpper> {
+  upsert(userId: number, answerId: number): PrismaPromise<AnswerUpper> {
     return this.prisma.answerUpper.upsert({
       where: { answerId_userId: { answerId, userId } },
       create: { answerId, userId },
@@ -53,7 +59,13 @@ export class AnswerUpperService {
     return this.prisma.answerUpper.findUnique(params)
   }
 
-  removeMany(where: AnswerUpperWhereInput): Promise<{ count: number }> {
+  remove(answerId: number, userId: number): PrismaPromise<AnswerUpper> {
+    return this.prisma.answerUpper.delete({
+      where: { answerId_userId: { answerId, userId } },
+    })
+  }
+
+  removeMany(where: AnswerUpperWhereInput): PrismaPromise<{ count: number }> {
     return this.prisma.answerUpper.deleteMany({ where })
   }
 }

@@ -1,16 +1,14 @@
-import React, { FC } from 'react';
-import {AutoComplete, Button, Card, Space, Typography} from 'antd';
-import {AppState} from "../data/state";
-import {Answer} from "../data/answer";
-import {AnswerCard} from "./AnswerCard";
-
+import React, { FC } from 'react'
+import { AutoComplete, Button, Card, Space, Typography } from 'antd'
+import { Answer } from '../data/answer'
+import { AnswerCard } from './AnswerCard'
 
 interface AnswerListProps {
-  answers: readonly Answer[],
-  showQuestion: boolean,
-  verticalMargin: string,
-  onUpBuilder: (answer: Answer) => () => void,
-  onDownBuilder: (answer: Answer) => () => void,
+  answers: readonly Answer[]
+  showQuestion: boolean
+  verticalMargin: string
+  onUpBuilder: (answer: Answer) => () => void
+  onDownBuilder: (answer: Answer) => () => void
 }
 
 export const AnswerList: FC<AnswerListProps> = (props: AnswerListProps) => {
@@ -22,7 +20,7 @@ export const AnswerList: FC<AnswerListProps> = (props: AnswerListProps) => {
       onUp={props.onUpBuilder(ans)}
       onDown={props.onDownBuilder(ans)}
     />
-  ));
+  ))
 
   return (
     <Space
@@ -31,8 +29,7 @@ export const AnswerList: FC<AnswerListProps> = (props: AnswerListProps) => {
       // margin: vertical | horizontal
       style={{ display: 'flex', margin: `${props.verticalMargin} 0` }}
     >
-      { answerCards }
+      {answerCards}
     </Space>
-  );
+  )
 }
-

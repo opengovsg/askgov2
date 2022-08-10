@@ -14,6 +14,7 @@ export type QuestionInclude = Prisma.QuestionInclude
 export type QuestionSelect = Prisma.QuestionSelect
 
 export type AnswerSelect = Prisma.AnswerSelect
+export type AnswerInclude = Prisma.AnswerInclude
 
 // This method works for Typescript string enums, and it appears that this is what Prisma enums are.
 export function matchScreenState(value: string): ScreenState | undefined {
@@ -42,21 +43,37 @@ export class QuestionService {
     return this.prisma.question.findMany(params)
   }
 
-  findOne(params: {
+  findOne(id: number, include?: QuestionInclude) {
+    return this.prisma.question.findUnique({ where: { id }, include })
+  }
+
+  findOneSelect(id: number, select: QuestionSelect) {
+    return this.prisma.question.findUnique({ where: { id }, select })
+  }
+
+  findOneWhere(params: {
     where: QuestionWhereUniqueInput
     include?: QuestionInclude
   }): Promise<Question | null> {
     return this.prisma.question.findUnique(params)
   }
 
-  update(params: {
+  update(id: number, data: QuestionUpdateInput): Promise<Question> {
+    return this.prisma.question.update({ where: { id }, data })
+  }
+
+  updateWhere(params: {
     where: QuestionWhereUniqueInput
     data: QuestionUpdateInput
   }): Promise<Question> {
     return this.prisma.question.update(params)
   }
 
-  remove(where: QuestionWhereUniqueInput): Promise<Question> {
+  remove(id: number): Promise<Question> {
+    return this.prisma.question.delete({ where: { id } })
+  }
+
+  removeWhere(where: QuestionWhereUniqueInput): Promise<Question> {
     return this.prisma.question.delete({ where })
   }
 }

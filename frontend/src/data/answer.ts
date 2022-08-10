@@ -1,14 +1,13 @@
 import { Question } from './question'
-import { User } from './user'
+import { LikeCounts } from './like'
 
 export interface Answer {
   id: number
   question?: Question
   questionId?: number
   body: string
-  author?: User
-  ups?: number
-  downs?: number
   createdAt: string
-  updatedAt?: string
+  uppedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Up.
+  downedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Down.
+  _count: LikeCounts
 }

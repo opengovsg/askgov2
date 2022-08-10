@@ -1,31 +1,11 @@
 import React, { FC, useState } from 'react'
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Form,
-  Input,
-  Space,
-  Modal,
-  notification,
-} from 'antd'
-import { AppState } from '../data/state'
+import { Button, Card, Input, Modal, notification, Typography } from 'antd'
 import { QuestionList } from './QuestionList'
-import { QuestionSubmit } from './QuestionSubmit'
 import { api, getQuestions, postQuestions } from '../api'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { Question, ScreenState } from '../data/question'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Like, Question, ScreenState, UserLikeData } from '../data'
 
-interface HomeViewProps {
-  appState: AppState
-}
-
-function useQuestions() {
-  const { data } = useQuery(['questions'], () =>
-    getQuestions(ScreenState.APPROVED),
-  )
-  return data
-}
+interface HomeViewProps {}
 
 function useAskMutation() {
   return useMutation((newQuestion: string) => postQuestions(newQuestion), {
@@ -43,22 +23,70 @@ function useAskMutation() {
   })
 }
 
-export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
-  const currentUser = props.appState.getCurrentUser()
+const QUESTION_QUERY_ID = 'questions'
 
+function useQuestionsQuery() {
+  return useQuery([QUESTION_QUERY_ID], () => getQuestions(ScreenState.APPROVED))
+}
+
+function useLikeMutation() {
+  const queryClient = useQueryClient()
+  return useMutation(
+    (params: { questionId: number; like: Like }) => {
+      const { questionId, like } = params
+      if (like === Like.UP) {
+        return api
+          .url(`/like/question/${questionId}/up`)
+          .post()
+          .json<UserLikeData>()
+      } else {
+        return api
+          .url(`/like/question/${questionId}/down`)
+          .post()
+          .json<UserLikeData>()
+      }
+    },
+    {
+      onError: (error, variables, context) => {
+        notification.error({
+          message: 'Could not perform Like operation',
+          description: `${error}`,
+          // duration: 0,
+        })
+      },
+      onSuccess: (data, variables, context) => {
+        const questions = queryClient.getQueryData<Question[]>([
+          QUESTION_QUERY_ID,
+        ])
+        if (questions) {
+          queryClient.setQueryData(
+            [QUESTION_QUERY_ID],
+            (questions as Question[]).map((q: Question) => {
+              if (q.id !== variables.questionId) {
+                return q
+              } else {
+                return { ...q, ...data }
+              }
+            }),
+          )
+        }
+      },
+    },
+  )
+}
+
+export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
+  // Setup Ask Dialog
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [askText, setAskText] = useState('')
-
-  // React-query
-  const questions = useQuestions()
-  const mutation = useAskMutation()
+  const askMutation = useAskMutation()
 
   const showModal = () => {
     setIsModalVisible(true)
   }
 
   const handleOk = () => {
-    mutation.mutate(askText)
+    askMutation.mutate(askText)
     setIsModalVisible(false)
     setAskText('')
   }
@@ -70,6 +98,16 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
 
   const handleAskTextChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     setAskText(e.currentTarget.value)
+  }
+
+  // Setup Questions and like callbacks.
+  const questionsQuery = useQuestionsQuery()
+  const likeMutation = useLikeMutation()
+  const onUp = (questionId: number) => {
+    likeMutation.mutate({ questionId, like: Like.UP })
+  }
+  const onDown = (questionId: number) => {
+    likeMutation.mutate({ questionId, like: Like.DOWN })
   }
 
   return (
@@ -96,9 +134,16 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
           value={askText}
           onChange={handleAskTextChange}
         />
-      </Modal>{' '}
+        <br />
+        <Typography.Text type="secondary">
+          Note: Submitting a question does not guarantee that the question will
+          be published or answered.
+        </Typography.Text>
+      </Modal>
       <QuestionList
-        questions={questions ? questions : []}
+        questions={questionsQuery.data}
+        onUp={onUp}
+        onDown={onDown}
         showAnswerBtn={false}
         // onUpBuilder={props.appState.getOnUpBuilder}
         // onDownBuilder={props.appState.getOnDownBuilder}

@@ -39,10 +39,10 @@ export const AnswerCard: FC<AnswerCardProps> = (props: AnswerCardProps) => {
         </Text>
       </p>
       <Button icon={<UpCircleOutlined />} onClick={props.onUp}>
-        {`${props.answer.ups}`}
+        {`${props.answer._count.uppedBy}`}
       </Button>
       <Button icon={<DownCircleOutlined />} onClick={props.onDown}>
-        {`${props.answer.downs}`}
+        {`${props.answer._count.downedBy}`}
       </Button>
     </Card>
   )

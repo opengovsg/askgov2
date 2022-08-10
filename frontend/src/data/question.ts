@@ -1,5 +1,6 @@
 import { User } from './user'
 import { Answer } from './answer'
+import { LikeCounts } from './like'
 
 export enum ScreenState {
   NEW = 'NEW',
@@ -10,9 +11,11 @@ export enum ScreenState {
 export interface Question {
   id: number
   body: string
-  author: User
-  screenState: ScreenState
-  answers?: Answer[]
   createdAt: string
-  updatedAt?: string
+  authorId: number
+  author?: User
+  uppedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Up.
+  downedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Down.
+  _count: LikeCounts
+  answers?: Answer[]
 }

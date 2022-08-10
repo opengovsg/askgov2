@@ -1,13 +1,16 @@
-import React, { FC } from 'react'
+import React, { FC, ReactNode } from 'react'
 import { AutoComplete, Button, Card, Space, Typography } from 'antd'
-import { AppState } from '../data/state'
-import { Question } from '../data/question'
+import { Question, ScreenState } from '../data/question'
 import { QuestionCard } from './QuestionCard'
 import { Link } from 'react-router-dom'
 import { routes } from '../constants/routes'
+import { useQuery } from '@tanstack/react-query'
+import { getQuestions } from '../api'
 
 interface QuestionListProps {
-  questions: readonly Question[]
+  questions?: Question[]
+  onUp: (questionId: number) => void
+  onDown: (questionId: number) => void
   showAnswerBtn: boolean
   verticalMargin: string
 }
@@ -15,11 +18,21 @@ interface QuestionListProps {
 export const QuestionList: FC<QuestionListProps> = (
   props: QuestionListProps,
 ) => {
-  const questionCards = props.questions.map((q) => (
-    <Link to={`${routes.question}/${q.id}`} key={q.id}>
-      <QuestionCard question={q} showAnswerBtn={props.showAnswerBtn} />
-    </Link>
-  ))
+  const questionCards = props.questions ? (
+    props.questions.map((q) => (
+      <QuestionCard
+        key={q.id}
+        question={q}
+        up={q.uppedBy && q.uppedBy.length > 0}
+        down={q.downedBy && q.downedBy.length > 0}
+        showAnswerBtn={props.showAnswerBtn}
+        onUp={props.onUp.bind(null, q.id)}
+        onDown={props.onDown.bind(null, q.id)}
+      />
+    ))
+  ) : (
+    <br />
+  )
 
   return (
     <Space
