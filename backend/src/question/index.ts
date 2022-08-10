@@ -1,2 +1,5 @@
 export * from './question.module'
+export * from './question.controller'
 export * from './question.service'
+export * from './dto/create-question.dto'
+export * from './dto/update-question.dto'

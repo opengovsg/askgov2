@@ -22,7 +22,7 @@ export class UserService {
   private readonly logger = new Logger(UserService.name)
   constructor(private prisma: PrismaService) {}
 
-  async create(params: UserUpsertArgs): Promise<PublicUser> {
+  async upsert(params: UserUpsertArgs): Promise<PublicUser> {
     const user = await this.prisma.user.upsert(params)
     return toPublicUser(user)
   }

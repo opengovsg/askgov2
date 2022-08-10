@@ -58,7 +58,7 @@ export class AuthController {
     })
 
     // Insert user into database and return id
-    const user = await this.userService.create({
+    const user = await this.userService.upsert({
       select: { id: true },
       where: { openid },
       update: {

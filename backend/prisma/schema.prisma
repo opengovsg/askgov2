@@ -18,33 +18,85 @@ enum ScreenState {
 }
 
 model Question {
-  id          Int             @id @default(autoincrement())
-  body        String
-  screenState ScreenState     @default(NEW)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  answers     Answer[]
-  author      User            @relation(fields: [authorId], references: [id])
+  id          Int               @id @default(autoincrement())
+  body        String            
+  screenState ScreenState       @default(NEW)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  answers     Answer[]          
+  author      User              @relation(fields: [authorId], references: [id])
   authorId    Int
+  uppedBy     QuestionUpper[]
+  downedBy    QuestionDowner[]
 }
+
+model QuestionUpper {
+ question     Question          @relation(fields: [questionId], references: [id])
+ questionId   Int               
+ user         User              @relation(fields: [userId], references: [id])
+ userId       Int               
+ createdAt    DateTime          @default(now())
+
+ @@id([questionId, userId])
+}
+
+model QuestionDowner {
+ question     Question          @relation(fields: [questionId], references: [id])
+ questionId   Int               
+ user         User              @relation(fields: [userId], references: [id])
+ userId       Int               
+ createdAt    DateTime          @default(now())
+
+ @@id([questionId, userId])
+}
+
 
 model Answer {
-  id         Int             @id @default(autoincrement())
-  question   Question        @relation(fields: [questionId], references: [id])
-  questionId Int
-  body       String
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id          Int               @id @default(autoincrement())
+  question    Question          @relation(fields: [questionId], references: [id])
+  questionId  Int               
+  body        String            
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  uppedBy     AnswerUpper[]
+  downedBy    AnswerDowner[]
 }
 
+
+
+model AnswerUpper {
+ answer       Answer            @relation(fields: [answerId], references: [id])
+ answerId     Int               
+ user         User              @relation(fields: [userId], references: [id])
+ userId       Int               
+ createdAt    DateTime          @default(now())
+
+ @@id([answerId, userId])
+}
+
+model AnswerDowner {
+ answer       Answer            @relation(fields: [answerId], references: [id])
+ answerId     Int               
+ user         User              @relation(fields: [userId], references: [id])
+ userId       Int               
+ createdAt    DateTime          @default(now())
+
+ @@id([answerId, userId])
+}
+
+
 model User {
-  id                Int        @id @default(autoincrement())
-  openid            String     @unique
-  nric              String     @unique
-  name              String
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id                Int                @id @default(autoincrement())
+  openid            String             @unique
+  nric              String             @unique
+  name              String             
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   authoredQuestions Question[]
+  uppedQuestions    QuestionUpper[]
+  downedQuestions   QuestionDowner[]
+  uppedAnswers      AnswerUpper[]
+  downedAnswers     AnswerDowner[]
 }
 
 model Session {

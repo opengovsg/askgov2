@@ -11,6 +11,9 @@ export type QuestionOrderByWithRelationAndSearchRelevanceInput =
   Prisma.QuestionOrderByWithRelationAndSearchRelevanceInput
 export type QuestionUpdateInput = Prisma.QuestionUpdateInput
 export type QuestionInclude = Prisma.QuestionInclude
+export type QuestionSelect = Prisma.QuestionSelect
+
+export type AnswerSelect = Prisma.AnswerSelect
 
 // This method works for Typescript string enums, and it appears that this is what Prisma enums are.
 export function matchScreenState(value: string): ScreenState | undefined {
@@ -34,7 +37,7 @@ export class QuestionService {
     cursor?: QuestionWhereUniqueInput
     where?: QuestionWhereInput
     orderBy?: QuestionOrderByWithRelationAndSearchRelevanceInput
-    include?: QuestionInclude
+    select?: QuestionSelect
   }) {
     return this.prisma.question.findMany(params)
   }

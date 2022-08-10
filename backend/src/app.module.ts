@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { ServeStaticModule } from '@nestjs/serve-static'
 import { AppService } from './app.service'
 import { UtilModule, ApiConfigService, validationSchema } from './util'
 import { QuestionModule } from './question'
@@ -8,6 +7,7 @@ import { AuthModule } from './auth/auth.module'
 import { SessionMiddleware } from './middleware'
 import { UserModule } from './user'
 import { join } from 'path'
+import { LikeModule } from './like/like.module';
 
 const FRONTEND_PATH = join(__dirname, '..', '..', 'frontend', 'build')
 
@@ -20,19 +20,7 @@ const FRONTEND_PATH = join(__dirname, '..', '..', 'frontend', 'build')
     ConfigModule.forRoot({
       validationSchema,
     }),
-    ServeStaticModule.forRoot({
-      rootPath: FRONTEND_PATH,
-      exclude: ['/api*'], // Return 404 for non-existent API routes
-      serveStaticOptions: {
-        maxAge: 2 * 60 * 60 * 1000, // 2 hours, same as cloudflare
-        setHeaders: function (res, path) {
-          // set maxAge to 0 for root index.html
-          if (path === join(FRONTEND_PATH, 'index.html')) {
-            res.setHeader('Cache-control', 'public, max-age=0')
-          }
-        },
-      },
-    }),
+    LikeModule,
   ],
   exports: [AppService],
   controllers: [],
