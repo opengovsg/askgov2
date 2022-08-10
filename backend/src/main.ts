@@ -16,6 +16,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   })
   app.setGlobalPrefix('api')
+  app.set('trust proxy', 1)
   const prismaService = app.get(PrismaService)
   await prismaService.enableShutdownHooks(app)
   const apiConfigService = app.get(ApiConfigService)
