@@ -20,9 +20,6 @@ export const validationSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
   APP_PORT: Joi.number().default(6174), // The port that this service runs on.
   FRONTEND_URL: Joi.string().uri().required(), // See auth.controller ToDo: can't rely on this default.
-  SGID_SCOPES: Joi.array()
-    .items(Joi.string())
-    .default(['openid', 'myinfo.name', 'myinfo.nric_number']),
   SGID_CLIENT_ID: Joi.string().default('CANASKGOV-TEST'),
   SGID_CLIENT_SECRET: Joi.string().required(),
   SGID_PRIVATE_KEY: Joi.string().required(),
@@ -40,7 +37,6 @@ interface EnvironmentVariables {
   NODE_ENV: string
   APP_PORT: number
   FRONTEND_URL: string
-  SGID_SCOPES: string[]
   SGID_CLIENT_ID: string
   SGID_CLIENT_SECRET: string
   SGID_PRIVATE_KEY: string
@@ -87,10 +83,6 @@ export class ApiConfigService {
 
   get frontendUrl(): string {
     return this.configService.get('FRONTEND_URL')
-  }
-
-  get sgidScopes(): string[] {
-    return this.configService.get('SGID_SCOPES')
   }
 
   get sgidClientId(): string {

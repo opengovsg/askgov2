@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { Request } from 'express'
-import { UserService, PublicUser } from '../user'
+import { UserService, User } from '../user'
 import { ApiConfigService } from '../util'
 
 @Controller({ path: 'auth', version: '1' })
@@ -31,10 +31,10 @@ export class AuthController {
   @Get('whoami')
   async getUserInfo(
     @Session() session: Request['session'],
-  ): Promise<{ currentUser: PublicUser | null }> {
+  ): Promise<{ currentUser: User | null }> {
     const userId = session?.userId
     const currentUser = userId
-      ? await this.userService.findOnePublic({ where: { id: userId } })
+      ? await this.userService.findOne({ where: { id: userId } })
       : null
 
     if (currentUser === null) {
@@ -53,7 +53,7 @@ export class AuthController {
     @Query('code') code: string,
     @Query('state') state: string,
   ): Promise<{ userId: number | undefined }> {
-    const { openid, nric, name } = await this.authService.handleCallback({
+    const { openid /*, nric, name */ } = await this.authService.handleCallback({
       code,
     })
 
@@ -62,13 +62,13 @@ export class AuthController {
       select: { id: true },
       where: { openid },
       update: {
-        nric,
-        name,
+        // nric,
+        // name,
       },
       create: {
         openid,
-        nric,
-        name,
+        // nric,
+        // name,
       },
     })
 

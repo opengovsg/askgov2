@@ -88,8 +88,6 @@ model AnswerDowner {
 model User {
   id                Int                @id @default(autoincrement())
   openid            String             @unique
-  nric              String             @unique
-  name              String             
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   authoredQuestions Question[]

@@ -11,8 +11,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizena',
-      nric: 'S0000000A',
-      name: 'WONG AN CHAI',
     },
   })
 
@@ -21,8 +19,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizenb',
-      nric: 'S0000000B',
-      name: 'ZAILA BINTI HASHIM',
     },
   })
 
@@ -31,8 +27,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizenc',
-      nric: 'S0000000C',
-      name: 'VISHWAS CHANDRAMURTHY',
     },
   })
 
@@ -41,8 +35,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizend',
-      nric: 'S0000000D',
-      name: 'CITIZEN DUQUESNE',
     },
   })
 
@@ -51,8 +43,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizene',
-      nric: 'S0000000E',
-      name: 'CITIZEN EDWARD',
     },
   })
 
@@ -61,8 +51,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizenf',
-      nric: 'S0000000F',
-      name: 'CITIZEN FRANK',
     },
   })
 
@@ -71,8 +59,6 @@ async function main() {
     update: {},
     create: {
       openid: 'citizeng',
-      nric: 'S0000000G',
-      name: 'CITIZEN GEORGE',
     },
   })
 

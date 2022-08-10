@@ -12,19 +12,18 @@ export type UserOrderByWithRelationAndSearchRelevanceInput =
 export type UserUpdateInput = Prisma.UserUpdateInput
 export type UserInclude = Prisma.UserInclude
 
-export interface PublicUser
-  extends Partial<Omit<User, 'openid' & 'nric' & 'name'>> {
-  publicName?: string
-}
+// export interface PublicUser
+//   extends Partial<Omit<User, 'openid' & 'nric' & 'name'>> {
+//   publicName?: string
+// }
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name)
   constructor(private prisma: PrismaService) {}
 
-  async upsert(params: UserUpsertArgs): Promise<PublicUser> {
-    const user = await this.prisma.user.upsert(params)
-    return toPublicUser(user)
+  async upsert(params: UserUpsertArgs): Promise<User> {
+    return await this.prisma.user.upsert(params)
   }
 
   findMany(params: {
@@ -45,13 +44,13 @@ export class UserService {
     return this.prisma.user.findUnique(params)
   }
 
-  async findOnePublic(params: {
-    where: UserWhereUniqueInput
-    include?: UserInclude
-  }): Promise<PublicUser | null> {
-    const one = await this.findOne(params)
-    return one ? toPublicUser(one) : null
-  }
+  // async findOnePublic(params: {
+  //   where: UserWhereUniqueInput
+  //   include?: UserInclude
+  // }): Promise<PublicUser | null> {
+  //   const one = await this.findOne(params)
+  //   return one ? toPublicUser(one) : null
+  // }
 
   update(params: {
     where: UserWhereUniqueInput
@@ -65,15 +64,15 @@ export class UserService {
   }
 }
 
-export function toPublicUser(user: Partial<User>): PublicUser {
-  return {
-    ...user,
-    openid: undefined,
-    nric: undefined,
-    name: undefined,
-    publicName: user.name ? anonymizeName(user.name) : undefined,
-  }
-}
+// export function toPublicUser(user: Partial<User>): PublicUser {
+//   return {
+//     ...user,
+//     openid: undefined,
+//     nric: undefined,
+//     name: undefined,
+//     publicName: user.name ? anonymizeName(user.name) : undefined,
+//   }
+// }
 
 export function anonymizeName(name: string): string {
   const parts = name.split(' ')

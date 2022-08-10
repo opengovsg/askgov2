@@ -7,6 +7,9 @@ interface SgidUserInfo {
   data: SgidUserInfoData
 }
 
+const SGID_SCOPES = ['openid', 'myinfo.name', 'myinfo.nric_number']
+// const SGID_SCOPES = ['openid']
+
 interface SgidUserInfoData extends Record<string, string> {
   'myinfo.nric_number': string
   'myinfo.name': string
@@ -14,8 +17,8 @@ interface SgidUserInfoData extends Record<string, string> {
 
 interface ParsedUserInfo {
   openid: string
-  nric: string
-  name: string
+  // nric: string
+  // name: string
 }
 
 @Injectable()
@@ -39,7 +42,7 @@ export class AuthService {
   } {
     return this.sgidClient.authorizationUrl(
       '/', // In the future, pass the user's location here, so we can navigate back to it
-      this.apiConfigService.sgidScopes,
+      SGID_SCOPES,
       null,
       this.apiConfigService.sgidRedirectUrl,
     )
@@ -53,7 +56,8 @@ export class AuthService {
 
   parseSgidInfo(info: SgidUserInfo): ParsedUserInfo {
     const { sub: openid, data } = info
-    const { 'myinfo.nric_number': nric, 'myinfo.name': name } = data
-    return { openid, nric, name }
+    // const { 'myinfo.nric_number': nric, 'myinfo.name': name } = data
+    // return { openid, nric, name }
+    return { openid }
   }
 }

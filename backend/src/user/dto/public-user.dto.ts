@@ -9,6 +9,6 @@ export class PublicUserDto {
     this.id = user.id
     this.createdAt = user.createdAt
     this.updatedAt = user.createdAt
-    this.publicName = user.name ? anonymizeName(user.name) : undefined
+    // this.publicName = user.name ? anonymizeName(user.name) : undefined
   }
 }

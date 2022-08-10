@@ -8,7 +8,7 @@ import {
   Delete,
   Logger,
 } from '@nestjs/common'
-import { PublicUser, UserService } from './user.service'
+import { UserService } from './user.service'
 import { User } from '@prisma/client'
 import { PublicUserDto } from './dto/public-user.dto'
 

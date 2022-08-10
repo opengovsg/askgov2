@@ -137,21 +137,18 @@ let id = 0
 const users: User[] = [
   {
     id: ++id,
-    publicName: 'John QC',
     canScreen: false,
     canAnswer: false,
     headline: 'Ullam Assumenda Repellat animi amet sint.',
   },
   {
     id: ++id,
-    publicName: 'Linda L',
     canScreen: true,
     canAnswer: false,
     headline: 'Omnis ipsa repellendus voluptate ratione veniam minima et.',
   },
   {
     id: ++id,
-    publicName: 'Ho JX',
     canScreen: true,
     canAnswer: true,
     position: 'Head of Somethingorother for Ministry of Whatnots',

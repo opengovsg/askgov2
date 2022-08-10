@@ -40,7 +40,7 @@ export const ProfileView: FC<ProfileViewProps> = (props: ProfileViewProps) => {
       >
         <Title level={2}>
           {user.canAnswer && <SafetyCertificateOutlined />}
-          {' ' + user.publicName}
+          {/*{' ' + user.publicName}*/}
         </Title>
         {user.position && <Title level={4}>{user.position}</Title>}
         <Text>{user.headline}</Text>

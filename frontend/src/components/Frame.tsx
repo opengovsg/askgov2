@@ -91,9 +91,9 @@ function userPopconfirmContent(
       onConfirm: login,
     }
   } else {
-    const publicName = data.currentUser.publicName
+    // const publicName = data.currentUser.publicName
     return {
-      title: () => <span>{publicName}</span>,
+      title: () => <span>Signed in</span>,
       okText: 'Sign Out',
       onConfirm: logout,
     }
