@@ -16,13 +16,15 @@ async function bootstrap() {
     type: VersioningType.URI,
   })
   app.setGlobalPrefix('api')
-  app.set('trust proxy', 1)
   const prismaService = app.get(PrismaService)
   await prismaService.enableShutdownHooks(app)
   const apiConfigService = app.get(ApiConfigService)
+  if (apiConfigService.isProduction || apiConfigService.isStaging) {
+    app.set('trust proxy', 1)
+  }
   app.enableCors({
     origin: apiConfigService.frontendUrl,
-    methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+    methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD', 'PATCH', 'DELETE'],
     credentials: true,
   })
   await app.listen(apiConfigService.appPort)

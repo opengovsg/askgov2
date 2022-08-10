@@ -32,16 +32,12 @@ export const validationSchema = Joi.object({
   SGID_HOSTNAME: Joi.string().default('https://api.id.gov.sg'),
   SESSION_SECRET: Joi.string().required(),
   SESSION_NAME: Joi.string().default('CanAskGovSession'),
-  SESSION_SAME_SITE: Joi.string()
-    .valid('strict', 'lax', 'none')
-    .default('strict'),
-  SESSION_DOMAIN: Joi.string().hostname(), // The domain for the session cookie
   SESSION_MAX_AGE: Joi.number().default(7 * 24 * 60 * 60 * 1000), // ms
-  SESSION_SECURE: Joi.boolean().required(), // disable in local dev env
   SESSION_CHECK_PERIOD: Joi.number().default(2 * 60 * 1000), // ms
 })
 
 interface EnvironmentVariables {
+  NODE_ENV: string
   APP_PORT: number
   FRONTEND_URL: string
   SGID_SCOPES: string[]
@@ -52,10 +48,7 @@ interface EnvironmentVariables {
   SGID_HOSTNAME: string
   SESSION_SECRET: string
   SESSION_NAME: string
-  SESSION_SAME_SITE: string
-  SESSION_DOMAIN?: string
   SESSION_MAX_AGE: number
-  SESSION_SECURE: boolean
   SESSION_CHECK_PERIOD: number
 }
 
@@ -71,6 +64,22 @@ export class ApiConfigService {
   // Types are checked agains the interface above, not agains the Joi schema,
   // so typing is nearly a pointless exercise here, but it does at least warn us
   // if we typed the name of the variable incorrectly.
+
+  get isProduction(): boolean {
+    return this.configService.get('NODE_ENV') === 'production'
+  }
+
+  get isStaging(): boolean {
+    return this.configService.get('NODE_ENV') === 'staging'
+  }
+
+  get isDevelopment(): boolean {
+    return this.configService.get('NODE_ENV') === 'development'
+  }
+
+  get isTest(): boolean {
+    return this.configService.get('NODE_ENV') === 'test'
+  }
 
   get appPort(): number {
     return this.configService.get('APP_PORT')
@@ -112,20 +121,8 @@ export class ApiConfigService {
     return this.configService.get('SESSION_NAME')
   }
 
-  get sessionSameSite(): 'lax' | 'strict' | 'none' {
-    return this.configService.get('SESSION_SAME_SITE')
-  }
-
-  get sessionDomain(): string | undefined {
-    return this.configService.get('SESSION_DOMAIN')
-  }
-
   get sessionMaxAge(): number {
     return this.configService.get('SESSION_MAX_AGE')
-  }
-
-  get sessionSecure(): boolean {
-    return this.configService.get('SESSION_SECURE')
   }
 
   get sessionCheckPeriod(): number {

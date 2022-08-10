@@ -22,21 +22,17 @@ export class SessionMiddleware implements NestMiddleware {
     private prisma: PrismaService,
     private apiConfigService: ApiConfigService,
   ) {
-    const cookie: session.CookieOptions = {
-      httpOnly: true,
-      sameSite: this.apiConfigService.sessionSameSite,
-      domain: this.apiConfigService.sessionDomain,
-      maxAge: this.apiConfigService.sessionMaxAge,
-      secure: this.apiConfigService.sessionSecure, // disable in local dev env
-    }
-    this.logger.log(`cookie: ${JSON.stringify(cookie, null, 2)}`)
-
     this.middleware = session({
       resave: false,
       saveUninitialized: false,
       secret: this.apiConfigService.sessionSecret,
       name: this.apiConfigService.sessionName,
-      cookie,
+      cookie: {
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: this.apiConfigService.sessionMaxAge,
+        secure: 'auto',
+      },
       store: new PrismaSessionStore(prisma, {
         checkPeriod: this.apiConfigService.sessionCheckPeriod, //ms
         dbRecordIdIsSessionId: true,
