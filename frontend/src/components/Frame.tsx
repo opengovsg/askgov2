@@ -16,6 +16,9 @@ import {
   Popover,
   notification,
   Popconfirm,
+  Badge,
+  Card,
+  Alert,
 } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { routes } from '../constants/routes'
@@ -142,20 +145,26 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
     <Layout className="layout">
       <Header>
         <Row>
-          <Col span={13}>
+          <Col span={6}>
             <Link to={routes.index}>
-              <Typography.Title
-                level={1}
-                style={{
-                  float: 'left',
-                  color: 'whitesmoke',
-                  marginTop: '10px',
-                  marginRight: '30px',
-                }}
-              >
-                CanAskGov
-              </Typography.Title>
+              <Badge count={'alpha'} offset={[-10, 15]} color="blue">
+                <div>
+                  <Typography.Title
+                    level={1}
+                    style={{
+                      float: 'left',
+                      color: 'whitesmoke',
+                      marginTop: '10px',
+                      marginRight: '30px',
+                    }}
+                  >
+                    Can.Ask.Gov
+                  </Typography.Title>
+                </div>
+              </Badge>
             </Link>
+          </Col>
+          <Col span={8}>
             <Menu
               theme="dark"
               mode="horizontal"
@@ -164,7 +173,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
               onSelect={onSelect}
             />
           </Col>
-          <Col span={11}>
+          <Col span={10}>
             <Popconfirm
               placement="bottom"
               title={title}
@@ -192,7 +201,16 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
           </Col>
         </Row>
       </Header>
+
       <Content style={{ padding: '0 50px' }}>
+        <Alert
+          message="Note"
+          description="This website is in a testing state. Let us know your feedback at askgov@open.gov.sg"
+          type="warning"
+          closable
+          showIcon
+          style={{ margin: '15px 0' }}
+        />
         <Outlet />
       </Content>
     </Layout>
