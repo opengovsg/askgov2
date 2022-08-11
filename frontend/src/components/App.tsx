@@ -10,8 +10,9 @@ import { AnswerView } from './AnswerView'
 import { QuestionView } from './QuestionView'
 import { ProfileView } from './ProfileView'
 import { ScreenView } from './ScreenView'
+import { IFrameView } from './IFrameView'
 
-import { routes } from '../constants'
+import { PRIVACY_URL, routes, TERMS_URL } from '../constants'
 
 export const queryClient = new QueryClient()
 
@@ -35,6 +36,14 @@ export const App: FC = () => {
               element={<ProfileView />}
             />
             <Route path={routes.screen} element={<ScreenView />} />
+            <Route
+              path={routes.termsOfUse}
+              element={<IFrameView src={TERMS_URL} />}
+            />
+            <Route
+              path={routes.privacyStatement}
+              element={<IFrameView src={PRIVACY_URL} />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

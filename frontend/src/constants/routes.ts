@@ -7,4 +7,6 @@ export const routes = {
   login: '/login',
   health: '/health',
   authCallback: '/auth-callback',
+  termsOfUse: '/terms',
+  privacyStatement: '/privacy',
 }

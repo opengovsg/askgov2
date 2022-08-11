@@ -19,6 +19,7 @@ import {
   Badge,
   Card,
   Alert,
+  Divider,
 } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { routes } from '../constants/routes'
@@ -26,6 +27,7 @@ import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query'
 import { api, postQuestions } from '../api'
 import { User } from '../data/user'
 import { Question } from '../data/question'
+import { Footer } from 'antd/es/layout/layout'
 
 const { Header, Content } = Layout
 
@@ -147,7 +149,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
         <Row>
           <Col span={6}>
             <Link to={routes.index}>
-              <Badge count={'alpha'} offset={[-10, 15]} color="blue">
+              <Badge count={'alpha'} offset={[-20, 15]} color="blue">
                 <div>
                   <Typography.Title
                     level={1}
@@ -213,6 +215,13 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
         />
         <Outlet />
       </Content>
+      <Footer style={{ textAlign: 'center' }}>
+        © 2022 Open Government Products, Government Technology Agency Singapore
+        <br />
+        <Link to={routes.privacyStatement}>Privacy Statement</Link>
+        <Divider type="vertical" />
+        <Link to={routes.termsOfUse}>Terms of Use</Link>
+      </Footer>
     </Layout>
   )
 }
