@@ -42,7 +42,7 @@ const { Header, Content } = Layout
 
 type ContextType = {
   checkLogin: () => boolean
-  currentUser?: number
+  currentUser?: User
 }
 export function useCheckLogin() {
   return useOutletContext<ContextType>()
@@ -240,7 +240,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
         <Outlet
           context={{
             checkLogin,
-            currentUser: userQueryResult.data?.currentUser,
+            currentUser: userQueryResult.data?.currentUser ?? undefined,
           }}
         />
       </Content>

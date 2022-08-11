@@ -9,8 +9,9 @@ import {
   useQuestionsQuery,
 } from '../api'
 import { useMutation } from '@tanstack/react-query'
-import { Like, ScreenState } from '../data'
+import { Like, Question, ScreenState } from '../data'
 import { useCheckLogin } from './Frame'
+import { checkNonAuthorLike } from './dialogs'
 
 interface HomeViewProps {}
 
@@ -65,14 +66,14 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
     LikeType.QUESTION,
     questionListQueryUpdateQuestionLikesFn(QUESTIONS_QUERY_KEY),
   )
-  const onUp = (questionId: number) => {
-    if (checkLogin()) {
-      likeMutation.mutate({ id: questionId, like: Like.UP })
+  const onUp = (question: Question) => {
+    if (checkLogin() && checkNonAuthorLike(currentUser, question)) {
+      likeMutation.mutate({ id: question.id, like: Like.UP })
     }
   }
-  const onDown = (questionId: number) => {
-    if (checkLogin()) {
-      likeMutation.mutate({ id: questionId, like: Like.DOWN })
+  const onDown = (question: Question) => {
+    if (checkLogin() && checkNonAuthorLike(currentUser, question)) {
+      likeMutation.mutate({ id: question.id, like: Like.DOWN })
     }
   }
 

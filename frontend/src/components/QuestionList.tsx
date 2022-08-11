@@ -9,8 +9,8 @@ import { getQuestions } from '../api'
 
 interface QuestionListProps {
   questions?: Question[]
-  onUp: (questionId: number) => void
-  onDown: (questionId: number) => void
+  onUp: (question: Question) => void
+  onDown: (question: Question) => void
   showAnswerBtn: boolean
   verticalMargin: string
 }
@@ -26,8 +26,8 @@ export const QuestionList: FC<QuestionListProps> = (
         up={q.uppedBy && q.uppedBy.length > 0}
         down={q.downedBy && q.downedBy.length > 0}
         showAnswerBtn={props.showAnswerBtn}
-        onUp={props.onUp.bind(null, q.id)}
-        onDown={props.onDown.bind(null, q.id)}
+        onUp={props.onUp.bind(null, q)}
+        onDown={props.onDown.bind(null, q)}
       />
     ))
   ) : (

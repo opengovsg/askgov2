@@ -5,8 +5,8 @@ import { AnswerCard } from './AnswerCard'
 
 interface AnswerListProps {
   answers: readonly Answer[]
-  onUp: (answerId: number) => void
-  onDown: (answerId: number) => void
+  onUp: (answer: Answer) => void
+  onDown: (answer: Answer) => void
   showQuestion: boolean
   verticalMargin: string
 }
@@ -19,8 +19,8 @@ export const AnswerList: FC<AnswerListProps> = (props: AnswerListProps) => {
       showQuestion={props.showQuestion}
       up={ans.uppedBy && ans.uppedBy.length > 0}
       down={ans.downedBy && ans.downedBy.length > 0}
-      onUp={props.onUp.bind(null, ans.id)}
-      onDown={props.onDown.bind(null, ans.id)}
+      onUp={props.onUp.bind(null, ans)}
+      onDown={props.onDown.bind(null, ans)}
     />
   ))
 

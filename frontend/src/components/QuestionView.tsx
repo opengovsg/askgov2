@@ -11,8 +11,9 @@ import {
   useLikeMutation,
   useQuestionQuery,
 } from '../api'
-import { Like, User } from '../data'
+import { Answer, Like, User } from '../data'
 import { useCheckLogin } from './Frame'
+import { checkNonAuthorLike } from './dialogs'
 
 interface QuestionViewProps {
   currentUser?: User
@@ -39,7 +40,7 @@ export const QuestionView: FC<QuestionViewProps> = (
   )
 
   const onQuestionUp = () => {
-    if (checkLogin()) {
+    if (checkLogin() && checkNonAuthorLike(currentUser, question)) {
       questionLikeMutation.mutate({
         id: parseInt(questionId ?? 'NaN', 10),
         like: Like.UP,
@@ -47,7 +48,7 @@ export const QuestionView: FC<QuestionViewProps> = (
     }
   }
   const onQuestionDown = () => {
-    if (checkLogin()) {
+    if (checkLogin() && checkNonAuthorLike(currentUser, question)) {
       questionLikeMutation.mutate({
         id: parseInt(questionId ?? 'NaN', 10),
         like: Like.DOWN,
@@ -58,14 +59,14 @@ export const QuestionView: FC<QuestionViewProps> = (
     LikeType.ANSWER,
     questionQueryUpdateAnswerLikesFn(questionQueryKey),
   )
-  const onAnswerUp = (answerId: number) => {
+  const onAnswerUp = (answer: Answer) => {
     if (checkLogin()) {
-      answerLikeMutation.mutate({ id: answerId, like: Like.UP })
+      answerLikeMutation.mutate({ id: answer.id, like: Like.UP })
     }
   }
-  const onAnswerDown = (answerId: number) => {
+  const onAnswerDown = (answer: Answer) => {
     if (checkLogin()) {
-      answerLikeMutation.mutate({ id: answerId, like: Like.DOWN })
+      answerLikeMutation.mutate({ id: answer.id, like: Like.DOWN })
     }
   }
 
