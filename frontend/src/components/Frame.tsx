@@ -28,6 +28,7 @@ import { api, postQuestions } from '../api'
 import { User } from '../data/user'
 import { Question } from '../data/question'
 import { Footer } from 'antd/es/layout/layout'
+import { LoginPrompt } from './LoginPrompt'
 
 const { Header, Content } = Layout
 
@@ -38,6 +39,14 @@ const { Header, Content } = Layout
 // export function useSelectedMenuKey() {
 //   return useOutletContext<ContextType>()
 // }
+
+type ContextType = {
+  checkLogin: () => boolean
+  currentUser?: number
+}
+export function useCheckLogin() {
+  return useOutletContext<ContextType>()
+}
 
 interface FrameProps {}
 
@@ -143,6 +152,16 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
     }
   }
 
+  const [isLoginPromptVisible, setIsLoginPromptVisible] = useState(false)
+  const checkLogin = () => {
+    if (userQueryResult.data?.currentUser) {
+      return true
+    } else {
+      setIsLoginPromptVisible(true)
+      return false
+    }
+  }
+
   return (
     <Layout className="layout">
       <Header>
@@ -213,7 +232,17 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
           showIcon
           style={{ margin: '15px 0' }}
         />
-        <Outlet />
+        <LoginPrompt
+          visible={isLoginPromptVisible}
+          setVisible={setIsLoginPromptVisible}
+          url={url}
+        />
+        <Outlet
+          context={{
+            checkLogin,
+            currentUser: userQueryResult.data?.currentUser,
+          }}
+        />
       </Content>
       <Footer style={{ textAlign: 'center' }}>
         © 2022 Open Government Products, Government Technology Agency Singapore

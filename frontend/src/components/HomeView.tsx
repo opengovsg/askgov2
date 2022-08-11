@@ -10,6 +10,7 @@ import {
 } from '../api'
 import { useMutation } from '@tanstack/react-query'
 import { Like, ScreenState } from '../data'
+import { useCheckLogin } from './Frame'
 
 interface HomeViewProps {}
 
@@ -30,12 +31,16 @@ function useAskMutation() {
 }
 
 export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
+  const { checkLogin, currentUser } = useCheckLogin()
+
   // Setup Ask Dialog
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [askText, setAskText] = useState('')
   const askMutation = useAskMutation()
   const showModal = () => {
-    setIsModalVisible(true)
+    if (checkLogin()) {
+      setIsModalVisible(true)
+    }
   }
   const handleOk = () => {
     askMutation.mutate(askText)
@@ -61,10 +66,14 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
     questionListQueryUpdateQuestionLikesFn(QUESTIONS_QUERY_KEY),
   )
   const onUp = (questionId: number) => {
-    likeMutation.mutate({ id: questionId, like: Like.UP })
+    if (checkLogin()) {
+      likeMutation.mutate({ id: questionId, like: Like.UP })
+    }
   }
   const onDown = (questionId: number) => {
-    likeMutation.mutate({ id: questionId, like: Like.DOWN })
+    if (checkLogin()) {
+      likeMutation.mutate({ id: questionId, like: Like.DOWN })
+    }
   }
 
   return (
