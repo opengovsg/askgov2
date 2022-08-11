@@ -38,4 +38,24 @@ export class LikeController {
     const userId = session.userId! // Guard ensures this is valid.
     return this.likeService.downQuestion(userId, questionId)
   }
+
+  @Post('answer/:answerId/up')
+  @UseGuards(AuthGuard)
+  upAnswer(
+    @Session() session: Request['session'],
+    @Param('answerId') answerId: number,
+  ) {
+    const userId = session.userId! // Guard ensures this is valid.
+    return this.likeService.upAnswer(userId, answerId)
+  }
+
+  @Post('answer/:answerId/down')
+  @UseGuards(AuthGuard)
+  downAnswer(
+    @Session() session: Request['session'],
+    @Param('answerId') answerId: number,
+  ) {
+    const userId = session.userId! // Guard ensures this is valid.
+    return this.likeService.downAnswer(userId, answerId)
+  }
 }

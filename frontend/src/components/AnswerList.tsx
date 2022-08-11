@@ -5,10 +5,10 @@ import { AnswerCard } from './AnswerCard'
 
 interface AnswerListProps {
   answers: readonly Answer[]
+  onUp: (answerId: number) => void
+  onDown: (answerId: number) => void
   showQuestion: boolean
   verticalMargin: string
-  onUpBuilder: (answer: Answer) => () => void
-  onDownBuilder: (answer: Answer) => () => void
 }
 
 export const AnswerList: FC<AnswerListProps> = (props: AnswerListProps) => {
@@ -17,8 +17,10 @@ export const AnswerList: FC<AnswerListProps> = (props: AnswerListProps) => {
       answer={ans}
       key={ans.id}
       showQuestion={props.showQuestion}
-      onUp={props.onUpBuilder(ans)}
-      onDown={props.onDownBuilder(ans)}
+      up={ans.uppedBy && ans.uppedBy.length > 0}
+      down={ans.downedBy && ans.downedBy.length > 0}
+      onUp={props.onUp.bind(null, ans.id)}
+      onDown={props.onDown.bind(null, ans.id)}
     />
   ))
 

@@ -1,22 +1,17 @@
 import React, { FC } from 'react'
-import { Routes, Route, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-import { Button, Card, Typography } from 'antd'
+import { Card, Typography } from 'antd'
 import { QuestionCard } from './QuestionCard'
 import { AnswerList } from './AnswerList'
-import { useQuery } from '@tanstack/react-query'
-import { api } from '../api'
-import { Question } from '../data/question'
-import { User } from '../data/user'
-
-function useQuestion(id?: string) {
-  if (id === undefined) {
-    id = 'none'
-  }
-  return useQuery(['questionDetail', id], () =>
-    api.url(`/question/${id}`).get().json<Question>(),
-  )
-}
+import {
+  LikeType,
+  questionQueryUpdateQuestionLikesFn,
+  questionQueryUpdateAnswerLikesFn,
+  useLikeMutation,
+  useQuestionQuery,
+} from '../api'
+import { Like, User } from '../data'
 
 interface QuestionViewProps {
   currentUser?: User
@@ -27,13 +22,42 @@ export const QuestionView: FC<QuestionViewProps> = (
 ) => {
   const { questionId } = useParams()
 
+  const questionQueryKey = ['question', questionId ?? 'none']
   const {
     isLoading,
     isError,
     isSuccess,
     error,
     data: question,
-  } = useQuestion(questionId)
+  } = useQuestionQuery(questionQueryKey, questionId)
+  const questionLikeMutation = useLikeMutation(
+    LikeType.QUESTION,
+    questionQueryUpdateQuestionLikesFn(questionQueryKey),
+  )
+
+  const onQuestionUp = () => {
+    questionLikeMutation.mutate({
+      id: parseInt(questionId ?? 'NaN', 10),
+      like: Like.UP,
+    })
+  }
+  const onQuestionDown = () => {
+    questionLikeMutation.mutate({
+      id: parseInt(questionId ?? 'NaN', 10),
+      like: Like.DOWN,
+    })
+  }
+  const answerLikeMutation = useLikeMutation(
+    LikeType.ANSWER,
+    questionQueryUpdateAnswerLikesFn(questionQueryKey),
+  )
+  const onAnswerUp = (answerId: number) => {
+    answerLikeMutation.mutate({ id: answerId, like: Like.UP })
+  }
+  const onAnswerDown = (answerId: number) => {
+    answerLikeMutation.mutate({ id: answerId, like: Like.DOWN })
+  }
+
   if (isLoading) {
     return (
       <Typography.Title style={{ margin: '30px 0' }}>
@@ -56,10 +80,10 @@ export const QuestionView: FC<QuestionViewProps> = (
     >
       <QuestionCard
         question={question}
-        onUp={() => {}}
-        onDown={() => {}}
-        up={false}
-        down={false}
+        onUp={onQuestionUp}
+        onDown={onQuestionDown}
+        up={question.uppedBy && question.uppedBy.length > 0}
+        down={question.downedBy && question.downedBy.length > 0}
         key={question.id}
         showAnswerBtn={props.currentUser?.canAnswer === true}
       />
@@ -68,8 +92,8 @@ export const QuestionView: FC<QuestionViewProps> = (
           showQuestion={false}
           answers={question.answers}
           verticalMargin="30px"
-          onUpBuilder={(answer) => () => {}}
-          onDownBuilder={(answer) => () => {}}
+          onUp={onAnswerUp}
+          onDown={onAnswerDown}
         />
       )}
     </div>

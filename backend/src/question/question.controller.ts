@@ -11,26 +11,22 @@ import {
   Query,
   Logger,
   Session,
-  UnauthorizedException,
   UseGuards,
   BadRequestException,
 } from '@nestjs/common'
 import {
   QuestionService,
-  Question,
-  ScreenState,
   QuestionWhereInput,
   matchScreenState,
   QuestionSelect,
-  AnswerSelect,
   QuestionInclude,
-  AnswerInclude,
 } from './question.service'
+import { AnswerInclude } from '../answer'
 
 import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
 import { Request } from 'express'
-import { AuthGuard } from '../auth/auth.guard'
+import { AuthGuard } from '../auth'
 
 @Controller({ path: 'question', version: '1' })
 export class QuestionController {

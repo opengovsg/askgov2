@@ -8,9 +8,10 @@ import { UtilModule } from '../util'
 import { AuthModule } from '../auth'
 import { LikeService } from './like.service'
 import { QuestionModule } from '../question'
+import { AnswerModule } from '../answer'
 
 @Module({
-  imports: [UtilModule, AuthModule, QuestionModule],
+  imports: [UtilModule, AuthModule, QuestionModule, AnswerModule],
   controllers: [LikeController],
   providers: [
     QuestionUpperService,

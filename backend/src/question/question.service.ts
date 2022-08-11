@@ -13,9 +13,6 @@ export type QuestionUpdateInput = Prisma.QuestionUpdateInput
 export type QuestionInclude = Prisma.QuestionInclude
 export type QuestionSelect = Prisma.QuestionSelect
 
-export type AnswerSelect = Prisma.AnswerSelect
-export type AnswerInclude = Prisma.AnswerInclude
-
 // This method works for Typescript string enums, and it appears that this is what Prisma enums are.
 export function matchScreenState(value: string): ScreenState | undefined {
   return Object.values(ScreenState).find((v) => v === value)

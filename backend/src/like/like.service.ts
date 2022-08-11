@@ -9,6 +9,7 @@ import { QuestionDownerService } from './question-downer.service'
 import { AnswerUpperService } from './answer-upper.service'
 import { AnswerDownerService } from './answer-downer.service'
 import { QuestionService } from '../question'
+import { AnswerService } from '../answer'
 
 enum Dir {
   UP,
@@ -19,9 +20,10 @@ enum Dir {
 export class LikeService {
   constructor(
     private prisma: PrismaService,
+    private readonly questionService: QuestionService,
     private readonly questionUpperService: QuestionUpperService,
     private readonly questionDownerService: QuestionDownerService,
-    private readonly questionService: QuestionService,
+    private readonly answerService: AnswerService,
     private readonly answerUpperService: AnswerUpperService,
     private readonly answerDownerService: AnswerDownerService,
   ) {}
@@ -96,5 +98,77 @@ export class LikeService {
       ])
     }
     return this.getQuestionLikeState(userId, questionId)
+  }
+
+  async checkAnswerState(userId: number, answerId: number, direction: Dir) {
+    const answer = await this.answerService.findOne(
+      answerId,
+      direction === Dir.UP
+        ? { uppedBy: { where: { userId } } }
+        : { downedBy: { where: { userId } } },
+    )
+    if (!answer) {
+      throw new NotFoundException(`Answer ${answerId} not found`)
+    }
+    // if (answer.authorId == userId) {
+    //   throw new BadRequestException(
+    //     `Like operations are not allowed by authors`,
+    //   )
+    // }
+    return direction === Dir.UP
+      ? (answer as any).uppedBy.length > 0
+      : (answer as any).downedBy.length > 0
+  }
+
+  async getAnswerLikeState(userId: number, answerId: number) {
+    return this.answerService.findOneSelect(answerId, {
+      _count: { select: { uppedBy: true, downedBy: true } },
+      uppedBy: {
+        where: { userId },
+        select: {
+          createdAt: true,
+        },
+      },
+      downedBy: {
+        where: { userId },
+        select: {
+          createdAt: true,
+        },
+      },
+    })
+  }
+
+  async upAnswer(userId: number, answerId: number) {
+    const up = await this.checkAnswerState(userId, answerId, Dir.UP)
+
+    if (up) {
+      const [countRemovedQDown, newQUp] = await this.prisma.$transaction([
+        this.answerUpperService.removeMany({ userId, answerId }),
+        this.answerDownerService.removeMany({ userId, answerId }),
+      ])
+    } else {
+      const [countRemovedQDown, newQUp] = await this.prisma.$transaction([
+        this.answerUpperService.upsert(userId, answerId),
+        this.answerDownerService.removeMany({ userId, answerId }),
+      ])
+    }
+    return this.getAnswerLikeState(userId, answerId)
+  }
+
+  async downAnswer(userId: number, answerId: number) {
+    const down = await this.checkAnswerState(userId, answerId, Dir.DOWN)
+
+    if (down) {
+      const [countRemovedQDown, newQUp] = await this.prisma.$transaction([
+        this.answerUpperService.removeMany({ userId, answerId }),
+        this.answerDownerService.removeMany({ userId, answerId }),
+      ])
+    } else {
+      const [countRemovedQDown, newQUp] = await this.prisma.$transaction([
+        this.answerUpperService.removeMany({ userId, answerId }),
+        this.answerDownerService.upsert(userId, answerId),
+      ])
+    }
+    return this.getAnswerLikeState(userId, answerId)
   }
 }

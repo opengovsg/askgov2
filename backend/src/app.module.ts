@@ -8,6 +8,7 @@ import { SessionMiddleware } from './middleware'
 import { UserModule } from './user'
 import { join } from 'path'
 import { LikeModule } from './like/like.module';
+import { AnswerModule } from './answer/answer.module';
 
 const FRONTEND_PATH = join(__dirname, '..', '..', 'frontend', 'build')
 
@@ -21,6 +22,7 @@ const FRONTEND_PATH = join(__dirname, '..', '..', 'frontend', 'build')
       validationSchema,
     }),
     LikeModule,
+    AnswerModule,
   ],
   exports: [AppService],
   controllers: [],

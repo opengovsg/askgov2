@@ -14,6 +14,8 @@ interface AnswerCardProps {
   showQuestion: boolean
   onUp: () => void
   onDown: () => void
+  up: boolean
+  down: boolean
 }
 
 const priceAtom = atom(10)
@@ -38,10 +40,18 @@ export const AnswerCard: FC<AnswerCardProps> = (props: AnswerCardProps) => {
           {format(new Date(props.answer.createdAt), DATE_FORMAT)}
         </Text>
       </p>
-      <Button icon={<UpCircleOutlined />} onClick={props.onUp}>
+      <Button
+        icon={<UpCircleOutlined />}
+        onClick={props.onUp}
+        type={props.up ? 'primary' : 'default'}
+      >
         {`${props.answer._count.uppedBy}`}
       </Button>
-      <Button icon={<DownCircleOutlined />} onClick={props.onDown}>
+      <Button
+        icon={<DownCircleOutlined />}
+        onClick={props.onDown}
+        type={props.down ? 'primary' : 'default'}
+      >
         {`${props.answer._count.downedBy}`}
       </Button>
     </Card>

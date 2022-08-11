@@ -1,9 +1,15 @@
 import React, { FC, useState } from 'react'
 import { Button, Card, Input, Modal, notification, Typography } from 'antd'
 import { QuestionList } from './QuestionList'
-import { api, getQuestions, postQuestions } from '../api'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Like, Question, ScreenState, UserLikeData } from '../data'
+import {
+  LikeType,
+  postQuestions,
+  questionListQueryUpdateQuestionLikesFn,
+  useLikeMutation,
+  useQuestionsQuery,
+} from '../api'
+import { useMutation } from '@tanstack/react-query'
+import { Like, ScreenState } from '../data'
 
 interface HomeViewProps {}
 
@@ -23,91 +29,42 @@ function useAskMutation() {
   })
 }
 
-const QUESTION_QUERY_ID = 'questions'
-
-function useQuestionsQuery() {
-  return useQuery([QUESTION_QUERY_ID], () => getQuestions(ScreenState.APPROVED))
-}
-
-function useLikeMutation() {
-  const queryClient = useQueryClient()
-  return useMutation(
-    (params: { questionId: number; like: Like }) => {
-      const { questionId, like } = params
-      if (like === Like.UP) {
-        return api
-          .url(`/like/question/${questionId}/up`)
-          .post()
-          .json<UserLikeData>()
-      } else {
-        return api
-          .url(`/like/question/${questionId}/down`)
-          .post()
-          .json<UserLikeData>()
-      }
-    },
-    {
-      onError: (error, variables, context) => {
-        notification.error({
-          message: 'Could not perform Like operation',
-          description: `${error}`,
-          // duration: 0,
-        })
-      },
-      onSuccess: (data, variables, context) => {
-        const questions = queryClient.getQueryData<Question[]>([
-          QUESTION_QUERY_ID,
-        ])
-        if (questions) {
-          queryClient.setQueryData(
-            [QUESTION_QUERY_ID],
-            (questions as Question[]).map((q: Question) => {
-              if (q.id !== variables.questionId) {
-                return q
-              } else {
-                return { ...q, ...data }
-              }
-            }),
-          )
-        }
-      },
-    },
-  )
-}
-
 export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
   // Setup Ask Dialog
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [askText, setAskText] = useState('')
   const askMutation = useAskMutation()
-
   const showModal = () => {
     setIsModalVisible(true)
   }
-
   const handleOk = () => {
     askMutation.mutate(askText)
     setIsModalVisible(false)
     setAskText('')
   }
-
   const handleCancel = () => {
     // submit askText
     setIsModalVisible(false)
   }
-
   const handleAskTextChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     setAskText(e.currentTarget.value)
   }
 
   // Setup Questions and like callbacks.
-  const questionsQuery = useQuestionsQuery()
-  const likeMutation = useLikeMutation()
+  const QUESTIONS_QUERY_KEY = ['questions']
+  const questionsQuery = useQuestionsQuery(
+    QUESTIONS_QUERY_KEY,
+    ScreenState.APPROVED,
+  )
+  const likeMutation = useLikeMutation(
+    LikeType.QUESTION,
+    questionListQueryUpdateQuestionLikesFn(QUESTIONS_QUERY_KEY),
+  )
   const onUp = (questionId: number) => {
-    likeMutation.mutate({ questionId, like: Like.UP })
+    likeMutation.mutate({ id: questionId, like: Like.UP })
   }
   const onDown = (questionId: number) => {
-    likeMutation.mutate({ questionId, like: Like.DOWN })
+    likeMutation.mutate({ id: questionId, like: Like.DOWN })
   }
 
   return (
