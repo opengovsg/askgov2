@@ -103,8 +103,8 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
         />
         <br />
         <Typography.Text type="secondary">
-          Note: Submitting a question does not guarantee that the question will
-          be published or answered.
+          Note: Questions will be checked for inappropriate content before
+          publishing.
         </Typography.Text>
       </Modal>
       <QuestionList
