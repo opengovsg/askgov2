@@ -7,6 +7,7 @@ import {
   questionListQueryUpdateQuestionLikesFn,
   useLikeMutation,
   useQuestionsQuery,
+  useTagsQuery,
 } from '../api'
 import { useMutation } from '@tanstack/react-query'
 import { Like, Question, ScreenState } from '../data'
@@ -32,11 +33,11 @@ function useAskMutation(tags: string[]) {
           description: `${error}`,
         })
       },
-      onSuccess: (data, variables, context) => {
-        notification.success({
-          message: 'Question Submitted',
-        })
-      },
+      // onSuccess: (data, variables, context) => {
+      //   notification.success({
+      //     message: 'Question Submitted',
+      //   })
+      // },
     },
   )
 }
@@ -57,6 +58,10 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
   const handleOk = () => {
     askMutation.mutate(askText)
     setIsModalVisible(false)
+    Modal.success({
+      content:
+        'Thank you for your question. Your question is currently under review. Please check back again after 1 - 2 hours.',
+    })
     setAskText('')
   }
   const handleCancel = () => {
@@ -89,10 +94,13 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
     }
   }
 
+  const TAGS_QUERY_KEY = ['tags']
+  const tagsQuery = useTagsQuery(TAGS_QUERY_KEY, tags)
+
   return (
     <>
-      {tags.length > 0 && (
-        <Typography.Title level={2}>{tags[0]}</Typography.Title>
+      {tags.length > 0 && tagsQuery.data && (
+        <Typography.Title level={2}>{tagsQuery.data[0].name}</Typography.Title>
       )}
       <Card
         // margin: vertical | horizontal

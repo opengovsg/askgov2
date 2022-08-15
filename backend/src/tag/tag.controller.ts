@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common'
 import { TagService } from './tag.service'
 
@@ -18,11 +19,14 @@ export class TagController {
   //   return this.tagService.create(createTagDto)
   // }
   //
-  // @Get()
-  // findAll() {
-  //   return this.tagService.findAll()
-  // }
-  //
+  @Get()
+  findAll(@Query('tag') tagQuery?: string | string[]) {
+    if (tagQuery !== undefined) {
+      return this.tagService.tagQueryToTags(tagQuery)
+    }
+    return this.tagService.findMany({})
+  }
+
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.tagService.findOne(+id)

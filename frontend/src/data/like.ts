@@ -6,6 +6,7 @@ export enum Like {
 export interface LikeCounts {
   uppedBy: number
   downedBy: number
+  answers?: number
 }
 
 export interface UserLikeData {

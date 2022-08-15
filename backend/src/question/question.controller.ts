@@ -27,6 +27,7 @@ import { CreateQuestionDto } from './dto/create-question.dto'
 import { UpdateQuestionDto } from './dto/update-question.dto'
 import { Request } from 'express'
 import { AuthGuard } from '../auth'
+import { Tag } from '../tag'
 
 @Controller({ path: 'question', version: '1' })
 export class QuestionController {
@@ -50,96 +51,17 @@ export class QuestionController {
   }
 
   @Get()
-  findAll(
+  async findAll(
     @Session() session: Request['session'],
     @Query('tag') tagQuery?: string | string[],
     @Query('screenState') screenState?: string,
   ) {
     const { userId } = session
-    let where: QuestionWhereInput | undefined = {}
-    const tags = this.questionService.tagQueryToArray(tagQuery)
-    // if (tags.length > 0) {
-    //   where = { tags: { some: { tag: } } }
-    // }
-    if (screenState !== undefined) {
-      const match = matchScreenState(screenState)
-      if (match) {
-        where = { screenState: matchScreenState(screenState), ...where }
-      } else {
-        throw new HttpException(
-          'Invalid screenState query parameter',
-          HttpStatus.BAD_REQUEST,
-        )
-      }
-    }
-
-    let questionSelect: QuestionSelect = {
-      id: true,
-      body: true,
-      createdAt: true,
-      authorId: true,
-      _count: {
-        select: {
-          uppedBy: true,
-          downedBy: true,
-        },
-      },
-    }
-
-    // let answerSelect: AnswerSelect = {
-    //   id: true,
-    //   body: true,
-    //   createdAt: true,
-    //   _count: {
-    //     select: {
-    //       uppedBy: true,
-    //       downedBy: true,
-    //     },
-    //   },
-    // }
-
-    if (userId) {
-      // answerSelect.uppedBy = {
-      //   where: { userId },
-      //   select: {
-      //     createdAt: true,
-      //   },
-      // }
-      // answerSelect.downedBy = {
-      //   where: { userId },
-      //   select: {
-      //     createdAt: true,
-      //   },
-      // }
-      questionSelect.uppedBy = {
-        where: { userId },
-        select: {
-          createdAt: true,
-        },
-      }
-      questionSelect.downedBy = {
-        where: { userId },
-        select: {
-          createdAt: true,
-        },
-      }
-    }
-
-    // questionSelect.answers = {
-    //   select: answerSelect,
-    // }
-
-    const found = this.questionService.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      select: questionSelect,
-    })
-
-    return found
-    // return found.map((question) => {
-    //   const { id, body, screenState, createdAt, updatedAt, authorId, include } = question
-    //   return {id: q.id, body, screenState, createdAt: }
-    // })
+    return this.questionService.findByTagAndScreenState(
+      userId,
+      tagQuery,
+      screenState,
+    )
   }
 
   @Get(':id')
@@ -147,8 +69,14 @@ export class QuestionController {
     const { userId } = session
     try {
       let include: QuestionInclude = {
+        tags: {
+          select: {
+            tag: true,
+          },
+        },
         _count: {
           select: {
+            answers: true,
             uppedBy: true,
             downedBy: true,
           },

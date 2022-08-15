@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { Answer, Like, Question, ScreenState, UserLikeData } from '../data'
-import { api, getQuestions } from './api'
+import { api, getQuestions, getTags } from './api'
 import { notification } from 'antd'
 
 export function useQuestionsQuery(
@@ -21,6 +21,12 @@ export function useQuestionQuery(queryKey: QueryKey, id?: string) {
   return useQuery(queryKey, () =>
     api.url(`/question/${id}`).get().json<Question>(),
   )
+}
+
+export function useTagsQuery(queryKey: QueryKey, tags: string[]) {
+  return useQuery(queryKey, () => getTags(tags), {
+    enabled: tags.length > 0,
+  })
 }
 
 export type UpdateLikesFn = (

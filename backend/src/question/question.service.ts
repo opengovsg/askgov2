@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common'
 import { Prisma, Question, ScreenState, Tag } from '@prisma/client'
 import { PrismaService } from '../util'
 import { CreateQuestionDto } from './dto/create-question.dto'
@@ -32,35 +38,12 @@ export class QuestionService {
     })
   }
 
-  tagQueryToArray(tags?: string | string[]): string[] {
-    if (tags === undefined) {
-      return []
-    } else if (typeof tags === 'string') {
-      return [tags]
-    } else {
-      return tags
-    }
-  }
-
-  async tagQueryToTags(tagQuery?: string | string[]): Promise<Tag[]> {
-    const tags = this.tagQueryToArray(tagQuery)
-    const foundTags = await this.tagService.findMany({
-      where: { OR: tags.map((slug: string) => ({ slug })) },
-    })
-    if (tags.length !== foundTags.length) {
-      throw new BadRequestException(
-        `Request included ${tags.length} tags (${tags}), but only ${foundTags.length} were valid.`,
-      )
-    }
-    return foundTags
-  }
-
   async createFromDto(
     data: CreateQuestionDto,
     authorId: number,
     tagQuery?: string | string[],
   ): Promise<Question> {
-    const foundTags = await this.tagQueryToTags(tagQuery)
+    const foundTags = await this.tagService.tagQueryToTagsOrThrow(tagQuery)
     return this.prisma.question.create({
       data: {
         body: data.body,
@@ -83,6 +66,109 @@ export class QuestionService {
     select?: QuestionSelect
   }) {
     return this.prisma.question.findMany(params)
+  }
+
+  async findByTagAndScreenState(
+    userId?: number,
+    tagQuery?: string | string[],
+    screenState?: string,
+  ) {
+    let where: QuestionWhereInput | undefined = {}
+    const tags = await this.tagService.tagQueryToTagsOrThrow(tagQuery)
+    if (tags.length > 0) {
+      where = {
+        ...where,
+        OR: tags.map((t: Tag) => ({ tags: { some: { tagId: t.id } } })),
+      }
+    }
+    if (screenState !== undefined) {
+      const match = matchScreenState(screenState)
+      if (match) {
+        where = {
+          ...where,
+          screenState: matchScreenState(screenState),
+        }
+      } else {
+        throw new HttpException(
+          'Invalid screenState query parameter',
+          HttpStatus.BAD_REQUEST,
+        )
+      }
+    }
+
+    let questionSelect: QuestionSelect = {
+      id: true,
+      body: true,
+      createdAt: true,
+      authorId: true,
+      tags: {
+        select: {
+          tag: true,
+        },
+      },
+      _count: {
+        select: {
+          answers: true,
+          uppedBy: true,
+          downedBy: true,
+        },
+      },
+    }
+
+    // let answerSelect: AnswerSelect = {
+    //   id: true,
+    //   body: true,
+    //   createdAt: true,
+    //   _count: {
+    //     select: {
+    //       uppedBy: true,
+    //       downedBy: true,
+    //     },
+    //   },
+    // }
+
+    if (userId) {
+      // answerSelect.uppedBy = {
+      //   where: { userId },
+      //   select: {
+      //     createdAt: true,
+      //   },
+      // }
+      // answerSelect.downedBy = {
+      //   where: { userId },
+      //   select: {
+      //     createdAt: true,
+      //   },
+      // }
+      questionSelect.uppedBy = {
+        where: { userId },
+        select: {
+          createdAt: true,
+        },
+      }
+      questionSelect.downedBy = {
+        where: { userId },
+        select: {
+          createdAt: true,
+        },
+      }
+    }
+
+    // questionSelect.answers = {
+    //   select: answerSelect,
+    // }
+
+    const found = this.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      select: questionSelect,
+    })
+
+    return found
+    // return found.map((question) => {
+    //   const { id, body, screenState, createdAt, updatedAt, authorId, include } = question
+    //   return {id: q.id, body, screenState, createdAt: }
+    // })
   }
 
   findOne(id: number, include?: QuestionInclude) {

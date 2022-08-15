@@ -111,6 +111,7 @@ model Tag {
   questions         QuestionTag[]      
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+  name              String
 }
 
 model QuestionTag {
