@@ -16,14 +16,22 @@ export const api = wretch(API_BASE_URL + '/api/v1')
   })
   .errorType('json')
 
-export async function getQuestions(screenState?: ScreenState) {
+export async function getQuestions(tags: string[], screenState?: ScreenState) {
   let url = api.url(`/question`)
-  if (screenState) {
-    url = url.query({ screenState })
+  let query: object = {}
+  if (tags.length > 0) {
+    query = { tag: tags, ...query }
   }
-  return url.get().json<Question[]>()
+  if (screenState) {
+    query = { screenState, ...query }
+  }
+  return url.query(query).get().json<Question[]>()
 }
 
-export async function postQuestions(body: string) {
-  return api.url(`/question`).post({ body }).json<Question>()
+export async function postQuestions(body: string, tags: string[]) {
+  return api
+    .url(`/question`)
+    .query({ tag: tags })
+    .post({ body })
+    .json<Question>()
 }

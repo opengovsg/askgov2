@@ -7,7 +7,8 @@ interface SgidUserInfo {
   data: SgidUserInfoData
 }
 
-const SGID_SCOPES = ['openid', 'myinfo.name', 'myinfo.nric_number']
+// const SGID_SCOPES = ['openid', 'myinfo.name', 'myinfo.nric_number']
+const SGID_SCOPES = ['openid', 'myinfo.name']
 // const SGID_SCOPES = ['openid']
 
 interface SgidUserInfoData extends Record<string, string> {
@@ -37,11 +38,11 @@ export class AuthService {
     })
   }
 
-  getAuthUrl(): {
+  getAuthUrl(returnTo: string): {
     url: string
   } {
     return this.sgidClient.authorizationUrl(
-      '/', // In the future, pass the user's location here, so we can navigate back to it
+      returnTo,
       SGID_SCOPES,
       null,
       this.apiConfigService.sgidRedirectUrl,

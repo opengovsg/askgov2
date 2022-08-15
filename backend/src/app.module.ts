@@ -9,6 +9,7 @@ import { UserModule } from './user'
 import { join } from 'path'
 import { LikeModule } from './like/like.module';
 import { AnswerModule } from './answer/answer.module';
+import { TagModule } from './tag/tag.module';
 
 const FRONTEND_PATH = join(__dirname, '..', '..', 'frontend', 'build')
 
@@ -23,6 +24,7 @@ const FRONTEND_PATH = join(__dirname, '..', '..', 'frontend', 'build')
     }),
     LikeModule,
     AnswerModule,
+    TagModule,
   ],
   exports: [AppService],
   controllers: [],

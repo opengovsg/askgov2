@@ -26,13 +26,14 @@ export const AuthCallback = (): JSX.Element => {
   let [searchParams, _setSearchParams] = useSearchParams()
   const code = searchParams.get('code') ?? undefined
   const state = searchParams.get('state') ?? undefined
+  const returnTo = state ?? '/'
   console.log()
   const navigate = useNavigate()
 
   const queryClient = useQueryClient()
   const onAuthMutationSuccess = () => {
     queryClient.invalidateQueries(['whoami'])
-    navigate(routes.index, { replace: true })
+    navigate(returnTo, { replace: true })
   }
   const authMutation = useAuthMutation(onAuthMutationSuccess)
 
@@ -63,7 +64,7 @@ export const AuthCallback = (): JSX.Element => {
           size="small"
           danger
           onClick={() => {
-            navigate(routes.index)
+            navigate(returnTo)
           }}
         >
           Return Home

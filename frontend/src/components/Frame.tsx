@@ -1,5 +1,11 @@
 import React, { FC, useState, ReactInstance } from 'react'
-import { Link, Outlet, useNavigate, useOutletContext } from 'react-router-dom'
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+} from 'react-router-dom'
 import { SelectEventHandler } from 'rc-menu/lib/interface'
 
 import {
@@ -29,6 +35,7 @@ import { User } from '../data/user'
 import { Question } from '../data/question'
 import { Footer } from 'antd/es/layout/layout'
 import { LoginPrompt } from './LoginPrompt'
+import { useGlobalSearchParams } from './links'
 
 const { Header, Content } = Layout
 
@@ -57,9 +64,12 @@ function useCurrentUser() {
 }
 
 function useLoginUrl(data?: { currentUser: User | null }) {
+  const location = useLocation()
+  const returnTo = `${location.pathname}${location.search}${location.hash}`
   return useQuery(
     ['login_url'],
-    () => api.url(`/auth/url`).get().json<{ url: string }>(),
+    () =>
+      api.url(`/auth/url`).query({ returnTo }).get().json<{ url: string }>(),
     { enabled: data && data.currentUser === null },
   )
 }
@@ -117,6 +127,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
   const { data } = useLoginUrl(userQueryResult.data)
   const url = data?.url
   const logoutMutation = useLogoutMutation()
+  const globalSearchParams = useGlobalSearchParams()
   const logout = () => {
     logoutMutation.mutate()
     window.location.reload()
@@ -141,13 +152,13 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
   const onSelect: SelectEventHandler = ({ item, key, keyPath, domEvent }) => {
     switch (key) {
       case routes.answer:
-        navigate(routes.answer)
+        navigate(`${routes.answer}?${globalSearchParams}`)
         break
       case routes.screen:
-        navigate(routes.screen)
+        navigate(`${routes.screen}?${globalSearchParams}`)
         break
       default:
-        navigate(routes.index)
+        navigate(`${routes.index}?${globalSearchParams}`)
         break
     }
   }
@@ -166,8 +177,8 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
     <Layout className="layout">
       <Header>
         <Row>
-          <Col span={6}>
-            <Link to={routes.index}>
+          <Col span={12}>
+            <Link to={`${routes.index}?${globalSearchParams}`}>
               <Badge count={'alpha'} offset={[-20, 15]} color="blue">
                 <div>
                   <Typography.Title
@@ -185,16 +196,16 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
               </Badge>
             </Link>
           </Col>
-          <Col span={8}>
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              selectedKeys={[]}
-              items={menuItems}
-              onSelect={onSelect}
-            />
-          </Col>
-          <Col span={10}>
+          {/*<Col span={8}>*/}
+          {/*  <Menu*/}
+          {/*    theme="dark"*/}
+          {/*    mode="horizontal"*/}
+          {/*    selectedKeys={[]}*/}
+          {/*    items={menuItems}*/}
+          {/*    onSelect={onSelect}*/}
+          {/*  />*/}
+          {/*</Col>*/}
+          <Col span={12}>
             <Popconfirm
               placement="bottom"
               title={title}
@@ -247,9 +258,13 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
       <Footer style={{ textAlign: 'center' }}>
         © 2022 Open Government Products, Government Technology Agency Singapore
         <br />
-        <Link to={routes.privacyStatement}>Privacy Statement</Link>
+        <Link to={`${routes.privacyStatement}?${globalSearchParams}`}>
+          Privacy Statement
+        </Link>
         <Divider type="vertical" />
-        <Link to={routes.termsOfUse}>Terms of Use</Link>
+        <Link to={`${routes.termsOfUse}?${globalSearchParams}`}>
+          Terms of Use
+        </Link>
       </Footer>
     </Layout>
   )

@@ -1,6 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { Prisma, Question, ScreenState } from '@prisma/client'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import { Prisma, Question, ScreenState, Tag } from '@prisma/client'
 import { PrismaService } from '../util'
+import { CreateQuestionDto } from './dto/create-question.dto'
+import { TagService, TagWhereInput } from '../tag'
+import { type } from 'os'
 
 // re-export types used by service interface
 export { Question, ScreenState } from '@prisma/client'
@@ -21,11 +24,53 @@ export function matchScreenState(value: string): ScreenState | undefined {
 @Injectable()
 export class QuestionService {
   private readonly logger = new Logger(QuestionService.name)
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private tagService: TagService) {}
 
   create(data: QuestionCreateInput): Promise<Question> {
     return this.prisma.question.create({
       data,
+    })
+  }
+
+  tagQueryToArray(tags?: string | string[]): string[] {
+    if (tags === undefined) {
+      return []
+    } else if (typeof tags === 'string') {
+      return [tags]
+    } else {
+      return tags
+    }
+  }
+
+  async tagQueryToTags(tagQuery?: string | string[]): Promise<Tag[]> {
+    const tags = this.tagQueryToArray(tagQuery)
+    const foundTags = await this.tagService.findMany({
+      where: { OR: tags.map((slug: string) => ({ slug })) },
+    })
+    if (tags.length !== foundTags.length) {
+      throw new BadRequestException(
+        `Request included ${tags.length} tags (${tags}), but only ${foundTags.length} were valid.`,
+      )
+    }
+    return foundTags
+  }
+
+  async createFromDto(
+    data: CreateQuestionDto,
+    authorId: number,
+    tagQuery?: string | string[],
+  ): Promise<Question> {
+    const foundTags = await this.tagQueryToTags(tagQuery)
+    return this.prisma.question.create({
+      data: {
+        body: data.body,
+        author: { connect: { id: authorId } },
+        tags: {
+          create: foundTags.map((tag: Tag) => ({
+            tag: { connect: { id: tag.id } },
+          })),
+        },
+      },
     })
   }
 

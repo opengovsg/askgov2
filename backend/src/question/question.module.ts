@@ -3,9 +3,10 @@ import { QuestionService } from './question.service'
 import { QuestionController } from './question.controller'
 import { UtilModule } from '../util'
 import { AuthModule } from '../auth'
+import { TagModule } from '../tag'
 
 @Module({
-  imports: [UtilModule, AuthModule],
+  imports: [UtilModule, TagModule, AuthModule],
   controllers: [QuestionController],
   providers: [QuestionService],
   exports: [QuestionService],

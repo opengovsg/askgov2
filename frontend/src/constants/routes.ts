@@ -10,3 +10,7 @@ export const routes = {
   termsOfUse: '/terms',
   privacyStatement: '/privacy',
 }
+
+export enum SearchParam {
+  tag = 'tag',
+}

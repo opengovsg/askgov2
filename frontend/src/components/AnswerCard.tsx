@@ -47,13 +47,13 @@ export const AnswerCard: FC<AnswerCardProps> = (props: AnswerCardProps) => {
       >
         {`${props.answer._count.uppedBy}`}
       </Button>
-      <Button
-        icon={<DownCircleOutlined />}
-        onClick={props.onDown}
-        type={props.down ? 'primary' : 'default'}
-      >
-        {`${props.answer._count.downedBy}`}
-      </Button>
+      {/*<Button*/}
+      {/*  icon={<DownCircleOutlined />}*/}
+      {/*  onClick={props.onDown}*/}
+      {/*  type={props.down ? 'primary' : 'default'}*/}
+      {/*>*/}
+      {/*  {`${props.answer._count.downedBy}`}*/}
+      {/*</Button>*/}
     </Card>
   )
 }

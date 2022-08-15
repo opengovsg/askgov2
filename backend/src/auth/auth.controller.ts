@@ -24,8 +24,8 @@ export class AuthController {
   ) {}
 
   @Get('url')
-  getUserAuthUrl(): { url: string } {
-    return this.authService.getAuthUrl()
+  getUserAuthUrl(@Query('returnTo') returnTo: string): { url: string } {
+    return this.authService.getAuthUrl(returnTo)
   }
 
   @Get('whoami')

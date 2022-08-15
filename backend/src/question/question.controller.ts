@@ -37,26 +37,34 @@ export class QuestionController {
   @UseGuards(AuthGuard)
   create(
     @Session() session: Request['session'],
-    @Body() createQuestionDto: CreateQuestionDto,
+    @Body() data: CreateQuestionDto,
+    @Query('tag') tags?: string | string[],
   ) {
     const userId = session.userId! // Guard ensures this is valid.
-    return this.questionService.create({
-      ...createQuestionDto,
-      author: { connect: { id: userId } },
-    })
+
+    // return this.questionService.create({
+    //   body: data.body,
+    //   author: { connect: { id: userId } },
+    // })
+    return this.questionService.createFromDto(data, userId, tags)
   }
 
   @Get()
   findAll(
     @Session() session: Request['session'],
+    @Query('tag') tagQuery?: string | string[],
     @Query('screenState') screenState?: string,
   ) {
     const { userId } = session
-    let where: QuestionWhereInput | undefined = undefined
+    let where: QuestionWhereInput | undefined = {}
+    const tags = this.questionService.tagQueryToArray(tagQuery)
+    // if (tags.length > 0) {
+    //   where = { tags: { some: { tag: } } }
+    // }
     if (screenState !== undefined) {
       const match = matchScreenState(screenState)
       if (match) {
-        where = { screenState: matchScreenState(screenState) }
+        where = { screenState: matchScreenState(screenState), ...where }
       } else {
         throw new HttpException(
           'Invalid screenState query parameter',

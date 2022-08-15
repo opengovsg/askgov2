@@ -11,9 +11,10 @@ import { notification } from 'antd'
 
 export function useQuestionsQuery(
   queryKey: QueryKey,
+  tags: string[],
   screenState: ScreenState,
 ) {
-  return useQuery(queryKey, () => getQuestions(screenState))
+  return useQuery(queryKey, () => getQuestions(tags, screenState))
 }
 
 export function useQuestionQuery(queryKey: QueryKey, id?: string) {

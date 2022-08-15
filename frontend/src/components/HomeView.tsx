@@ -12,23 +12,33 @@ import { useMutation } from '@tanstack/react-query'
 import { Like, Question, ScreenState } from '../data'
 import { useCheckLogin } from './Frame'
 import { checkNonAuthorLike } from './dialogs'
+import { SearchParam } from '../constants'
+import { createSearchParams, useSearchParams } from 'react-router-dom'
 
 interface HomeViewProps {}
 
-function useAskMutation() {
-  return useMutation((newQuestion: string) => postQuestions(newQuestion), {
-    onError: (error, variables, context) => {
-      notification.error({
-        message: 'Could not submit question',
-        description: `${error}`,
-      })
+function useTags() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  return searchParams.getAll(SearchParam.tag)
+}
+
+function useAskMutation(tags: string[]) {
+  return useMutation(
+    (newQuestion: string) => postQuestions(newQuestion, tags),
+    {
+      onError: (error, variables, context) => {
+        notification.error({
+          message: 'Could not submit question',
+          description: `${error}`,
+        })
+      },
+      onSuccess: (data, variables, context) => {
+        notification.success({
+          message: 'Question Submitted',
+        })
+      },
     },
-    onSuccess: (data, variables, context) => {
-      notification.success({
-        message: 'Question Submitted',
-      })
-    },
-  })
+  )
 }
 
 export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
@@ -37,7 +47,8 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
   // Setup Ask Dialog
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [askText, setAskText] = useState('')
-  const askMutation = useAskMutation()
+  const tags = useTags()
+  const askMutation = useAskMutation(tags)
   const showModal = () => {
     if (checkLogin()) {
       setIsModalVisible(true)
@@ -60,6 +71,7 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
   const QUESTIONS_QUERY_KEY = ['questions']
   const questionsQuery = useQuestionsQuery(
     QUESTIONS_QUERY_KEY,
+    tags,
     ScreenState.APPROVED,
   )
   const likeMutation = useLikeMutation(
@@ -79,6 +91,9 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
 
   return (
     <>
+      {tags.length > 0 && (
+        <Typography.Title level={2}>{tags[0]}</Typography.Title>
+      )}
       <Card
         // margin: vertical | horizontal
         style={{ margin: '30px 0' }}
