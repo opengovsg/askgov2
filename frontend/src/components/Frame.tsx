@@ -231,7 +231,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
       <Content style={{ padding: '0 50px' }}>
         <Alert
           message="Note"
-          description="This website is in a testing state. Please send us your feedback."
+          description="This website is in a testing state."
           type="warning"
           closable
           showIcon
