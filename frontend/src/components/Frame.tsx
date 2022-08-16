@@ -26,6 +26,7 @@ import {
   Card,
   Alert,
   Divider,
+  Space,
 } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { routes } from '../constants/routes'
@@ -46,6 +47,8 @@ const { Header, Content } = Layout
 // export function useSelectedMenuKey() {
 //   return useOutletContext<ContextType>()
 // }
+
+const feedbackUrl = 'https://go.gov.sg/askgov-feedback'
 
 type ContextType = {
   checkLogin: () => boolean
@@ -228,10 +231,15 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
       <Content style={{ padding: '0 50px' }}>
         <Alert
           message="Note"
-          description="This website is in a testing state. Let us know your feedback at askgov@open.gov.sg"
+          description="This website is in a testing state. Please send us your feedback."
           type="warning"
           closable
           showIcon
+          action={
+            <Button size="small" href={feedbackUrl} type="ghost">
+              Feedback
+            </Button>
+          }
           style={{ margin: '15px 0' }}
         />
         <LoginPrompt
@@ -256,6 +264,8 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
         <Link to={`${routes.termsOfUse}?${globalSearchParams}`}>
           Terms of Use
         </Link>
+        <Divider type="vertical" />
+        <a href={feedbackUrl}>Feedback</a>
       </Footer>
     </Layout>
   )
