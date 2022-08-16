@@ -42,6 +42,12 @@ function useAskMutation(tags: string[]) {
   )
 }
 
+function sortedQuestions(questions?: Question[]) {
+  if (questions === undefined) {
+    return questions
+  }
+}
+
 export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
   const { checkLogin, currentUser } = useCheckLogin()
 
@@ -60,7 +66,7 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
     setIsModalVisible(false)
     Modal.success({
       content:
-        'Thank you for your question. Your question is currently under review. Please check back again after 1 - 2 hours.',
+        'Thank you for your question. Your question is currently under review. Please check back again later.',
     })
     setAskText('')
   }

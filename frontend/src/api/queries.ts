@@ -71,6 +71,14 @@ export function useLikeMutation(
   )
 }
 
+function mergeQuestionLikes(q: Question, data: UserLikeData) {
+  const newQ: Question = { ...q, ...data }
+  if (q._count.answers) {
+    newQ._count.answers = q._count.answers
+  }
+  return newQ
+}
+
 export function questionListQueryUpdateQuestionLikesFn(
   invalidQueryKey: QueryKey,
 ) {
@@ -87,7 +95,7 @@ export function questionListQueryUpdateQuestionLikesFn(
           if (q.id !== variables.id) {
             return q
           } else {
-            return { ...q, ...data }
+            return mergeQuestionLikes(q, data)
           }
         }),
       )
@@ -103,7 +111,10 @@ export function questionQueryUpdateQuestionLikesFn(invalidQueryKey: QueryKey) {
   ) => {
     const question = queryClient.getQueryData<Question>(invalidQueryKey)
     if (question) {
-      queryClient.setQueryData(invalidQueryKey, { ...question, ...data })
+      queryClient.setQueryData(
+        invalidQueryKey,
+        mergeQuestionLikes(question, data),
+      )
     }
   }
 }

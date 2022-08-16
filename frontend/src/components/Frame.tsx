@@ -177,14 +177,13 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
     <Layout className="layout">
       <Header>
         <Row>
-          <Col span={12}>
+          <Col span={22}>
             <Link to={`${routes.index}?${globalSearchParams}`}>
               <Badge count={'alpha'} offset={[-20, 15]} color="blue">
                 <div>
                   <Typography.Title
                     level={1}
                     style={{
-                      float: 'left',
                       color: 'whitesmoke',
                       marginTop: '10px',
                       marginRight: '30px',
@@ -196,16 +195,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
               </Badge>
             </Link>
           </Col>
-          {/*<Col span={8}>*/}
-          {/*  <Menu*/}
-          {/*    theme="dark"*/}
-          {/*    mode="horizontal"*/}
-          {/*    selectedKeys={[]}*/}
-          {/*    items={menuItems}*/}
-          {/*    onSelect={onSelect}*/}
-          {/*  />*/}
-          {/*</Col>*/}
-          <Col span={12}>
+          <Col span={2}>
             <Popconfirm
               placement="bottom"
               title={title}
@@ -214,12 +204,13 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
               okText={okText}
               onConfirm={onConfirm}
               trigger="click"
+              style={{ marginLeft: 'auto' }}
             >
               <Button
                 shape="circle"
                 icon={<UserOutlined />}
                 size="large"
-                style={{ float: 'right', margin: '12px 10px' }}
+                style={{ margin: '12px 10px' }}
                 // href="https://api.id.gov.sg/v1/oauth/authorize?client_id=CANASKGOV-TEST&scope=openid%20myinfo.name%20myinfo.nric_number&response_type=code&redirect_uri=http://localhost:6174/api/v1/sgid/callback&state=state"
                 href="https://api.id.gov.sg/v1/oauth/authorize?client_id=CANASKGOV-TEST&scope=openid%20myinfo.name%20myinfo.nric_number&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A6174%2Fapi%2Fv1%2Fauth%2Fcallback&state=state"
               />
