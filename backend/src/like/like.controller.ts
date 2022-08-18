@@ -13,14 +13,14 @@ import {
 } from '@nestjs/common'
 import { Request } from 'express'
 import { LikeService } from './like.service'
-import { AuthGuard } from '../auth'
+import { UserGuard } from '../auth'
 
 @Controller({ path: 'like', version: '1' })
 export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
   @Post('question/:questionId/up')
-  @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   upQuestion(
     @Session() session: Request['session'],
     @Param('questionId') questionId: number,
@@ -30,7 +30,7 @@ export class LikeController {
   }
 
   @Post('question/:questionId/down')
-  @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   downQuestion(
     @Session() session: Request['session'],
     @Param('questionId') questionId: number,
@@ -40,7 +40,7 @@ export class LikeController {
   }
 
   @Post('answer/:answerId/up')
-  @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   upAnswer(
     @Session() session: Request['session'],
     @Param('answerId') answerId: number,
@@ -50,7 +50,7 @@ export class LikeController {
   }
 
   @Post('answer/:answerId/down')
-  @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   downAnswer(
     @Session() session: Request['session'],
     @Param('answerId') answerId: number,

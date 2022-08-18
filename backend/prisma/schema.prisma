@@ -61,6 +61,8 @@ model Answer {
   updatedAt   DateTime          @updatedAt
   uppedBy     AnswerUpper[]
   downedBy    AnswerDowner[]
+  author      Officer?          @relation(fields: [authorId], references: [id])
+  authorId    Int?
 }
 
 
@@ -96,6 +98,31 @@ model User {
   downedQuestions   QuestionDowner[]
   uppedAnswers      AnswerUpper[]
   downedAnswers     AnswerDowner[]
+}
+
+model Officer {
+  id                Int                  @id @default(autoincrement())
+  email             String               @unique
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  authoredAnswers   Answer[]
+  permissions       OfficerPermission[]
+}
+
+enum Permission {
+  SCREEN
+  ANSWER
+}
+
+model OfficerPermission {
+  id                Int                @id @default(autoincrement())
+  officer           Officer            @relation(fields: [officerId], references: [id])
+  officerId         Int    
+  permission        Permission           
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@unique([officerId, permission])
 }
 
 model Session {

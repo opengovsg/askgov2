@@ -1,7 +1,17 @@
 import React, { FC } from 'react'
-import { Button, Table, Tabs } from 'antd'
+import { Button, Modal, Table, Tabs, Typography } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import { Question, ScreenState } from '../data/question'
+import { canScreen, Question, ScreenState } from '../data'
+import {
+  usePatchScreenStateMutation,
+  useQuestionsQuery,
+  useTagsQuery,
+} from '../api'
+import { useGlobalSearchParams, useTags } from './links'
+import { UseQueryResult } from '@tanstack/react-query'
+import { useCheckLogin } from './Frame'
+import { routes } from '../constants'
+import { Link } from 'react-router-dom'
 
 const { TabPane } = Tabs
 
@@ -13,8 +23,9 @@ interface TableRow {
 interface QuestionScreenTableProps {
   questions: Question[]
   questionState: ScreenState
-  onApprove?: (question: Question) => void
-  onReject?: (question: Question) => void
+  onApprove: (question: Question) => void
+  onReject: (question: Question) => void
+  globalSearchParams: URLSearchParams
 }
 
 const QuestionScreenTable: FC<QuestionScreenTableProps> = (
@@ -37,7 +48,13 @@ const QuestionScreenTable: FC<QuestionScreenTableProps> = (
       key: 'question',
       title: 'Question',
       dataIndex: 'question',
-      render: (_, { question }) => question.body,
+      render: (_, { question }) => (
+        <Link
+          to={`${routes.question}/${question.id}?${props.globalSearchParams}`}
+        >
+          {question.body}
+        </Link>
+      ),
     },
     {
       key: 'action',
@@ -46,10 +63,14 @@ const QuestionScreenTable: FC<QuestionScreenTableProps> = (
       render: (_, { question }) => (
         <>
           {props.questionState !== ScreenState.APPROVED && (
-            <Button type="link">Approve</Button>
+            <Button type="link" onClick={props.onApprove.bind(null, question)}>
+              Approve
+            </Button>
           )}
           {props.questionState !== ScreenState.REJECTED && (
-            <Button type="link">Reject</Button>
+            <Button type="link" onClick={props.onReject.bind(null, question)}>
+              Reject
+            </Button>
           )}
         </>
       ),
@@ -62,16 +83,73 @@ const QuestionScreenTable: FC<QuestionScreenTableProps> = (
 interface ScreenViewProps {}
 
 export const ScreenView: FC<ScreenViewProps> = (props: ScreenViewProps) => {
-  return (
-    <Tabs
-      // margin: vertical | horizontal
-      style={{ margin: '30px 0' }}
-    >
-      {Object.values(ScreenState).map((state) => (
-        <TabPane tab={state} key={state}>
-          <QuestionScreenTable questions={[]} questionState={state} />
-        </TabPane>
-      ))}
-    </Tabs>
+  const { checkLogin, currentUser, currentOfficer } = useCheckLogin()
+
+  const queryMap = new Map<ScreenState, UseQueryResult<Question[], unknown>>()
+  const tags = useTags()
+  // Setup Questions and like callbacks.
+  const QUESTIONS_NEW_QUERY_KEY = ['questions', 'new']
+  queryMap.set(
+    ScreenState.NEW,
+    useQuestionsQuery(QUESTIONS_NEW_QUERY_KEY, tags, ScreenState.NEW),
+  )
+  const QUESTIONS_APPROVED_QUERY_KEY = ['questions', 'approved']
+  queryMap.set(
+    ScreenState.APPROVED,
+    useQuestionsQuery(QUESTIONS_APPROVED_QUERY_KEY, tags, ScreenState.APPROVED),
+  )
+  const QUESTIONS_REJECTED_QUERY_KEY = ['questions', 'rejected']
+  queryMap.set(
+    ScreenState.REJECTED,
+    useQuestionsQuery(QUESTIONS_REJECTED_QUERY_KEY, tags, ScreenState.REJECTED),
+  )
+
+  const TAGS_QUERY_KEY = ['tags']
+  const tagsQuery = useTagsQuery(TAGS_QUERY_KEY, tags)
+
+  const patchScreenStateMutation = usePatchScreenStateMutation(['questions'])
+  const onApprove = (question: Question) => {
+    patchScreenStateMutation.mutate({
+      questionId: question.id,
+      screenState: ScreenState.APPROVED,
+    })
+  }
+  const onReject = (question: Question) => {
+    patchScreenStateMutation.mutate({
+      questionId: question.id,
+      screenState: ScreenState.REJECTED,
+    })
+  }
+
+  const globalSearchParams = useGlobalSearchParams()
+
+  return canScreen(currentOfficer) ? (
+    <>
+      {tags.length > 0 && tagsQuery.data && (
+        <Typography.Title level={2} style={{ margin: '30px 0' }}>
+          {tagsQuery.data[0].name}
+        </Typography.Title>
+      )}
+      <Tabs
+        // margin: vertical | horizontal
+        style={{ margin: '30px 0' }}
+      >
+        {Object.values(ScreenState).map((screenState) => (
+          <TabPane tab={screenState} key={screenState}>
+            <QuestionScreenTable
+              questions={queryMap.get(screenState)?.data ?? []}
+              questionState={screenState}
+              onApprove={onApprove}
+              onReject={onReject}
+              globalSearchParams={globalSearchParams}
+            />
+          </TabPane>
+        ))}
+      </Tabs>
+    </>
+  ) : (
+    <Typography.Title level={3}>
+      You are not authorized to view this page
+    </Typography.Title>
   )
 }

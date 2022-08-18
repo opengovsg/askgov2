@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Button, Card, Typography, Tag, Space, Badge } from 'antd'
+import { Button, Card, Typography, Tag, Space, Badge, Col, Row } from 'antd'
 import { Question } from '../data/question'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
@@ -45,26 +45,30 @@ export const QuestionCard: FC<QuestionCardProps> = (
           {tags}
         </Space>
 
-        <Button
-          icon={<UpCircleOutlined />}
-          onClick={props.onUp}
-          type={props.up ? 'primary' : 'default'}
-        >
-          {`${props.question._count.uppedBy}`}
-        </Button>
-        {/*<Button*/}
-        {/*  icon={<DownCircleOutlined />}*/}
-        {/*  onClick={props.onDown}*/}
-        {/*  type={props.down ? 'primary' : 'default'}*/}
-        {/*>*/}
-        {/*  {`${props.question._count.downedBy}`}*/}
-        {/*</Button>*/}
-        {/*{props.showAnswerBtn && <Button>Answer</Button>}*/}
+        <Row>
+          <Col span={22}>
+            <Button
+              icon={<UpCircleOutlined />}
+              onClick={props.onUp}
+              type={props.up ? 'primary' : 'default'}
+            >
+              {`${props.question._count.uppedBy}`}
+            </Button>
+            {/*<Button*/}
+            {/*  icon={<DownCircleOutlined />}*/}
+            {/*  onClick={props.onDown}*/}
+            {/*  type={props.down ? 'primary' : 'default'}*/}
+            {/*>*/}
+            {/*  {`${props.question._count.downedBy}`}*/}
+            {/*</Button>*/}
+          </Col>
+          <Col span={2}>{props.showAnswerBtn && <Button>Answer</Button>}</Col>
+        </Row>
       </Space>
     </Card>
   )
   return props.question._count.answers && props.question._count.answers > 0 ? (
-    <Badge.Ribbon text="Answered" color="red">
+    <Badge.Ribbon text="Answered" color="#038564">
       {card}
     </Badge.Ribbon>
   ) : (

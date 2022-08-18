@@ -34,6 +34,7 @@ export const AnswerCard: FC<AnswerCardProps> = (props: AnswerCardProps) => {
       {props.showQuestion && props.answer.question && (
         <Title level={5}>{props.answer.question.body}</Title>
       )}
+      <Title level={5}>Answer</Title>
       <Text>{props.answer.body}</Text>
       <p>
         <Text type="secondary">

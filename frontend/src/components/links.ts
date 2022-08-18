@@ -16,3 +16,8 @@ export function useGlobalSearchParams() {
   const [searchParams, setSearchParams] = useSearchParams()
   return globalSearchParams(searchParams)
 }
+
+export function useTags() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  return searchParams.getAll(SearchParam.tag)
+}

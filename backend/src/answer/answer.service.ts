@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Prisma, Answer } from '@prisma/client'
+import { Prisma, Answer, Question, Tag } from '@prisma/client'
 import { PrismaService } from '../util'
+import { CreateAnswerDto } from './dto/create-answer.dto'
 
 export { Answer } from '@prisma/client'
 export type AnswerWhereUniqueInput = Prisma.AnswerWhereUniqueInput
@@ -20,6 +21,20 @@ export class AnswerService {
   create(data: AnswerCreateInput): Promise<Answer> {
     return this.prisma.answer.create({
       data,
+    })
+  }
+
+  async createFromDto(
+    data: CreateAnswerDto,
+    authorId: number,
+    tagQuery?: string | string[],
+  ): Promise<Answer> {
+    return this.prisma.answer.create({
+      data: {
+        body: data.body,
+        question: { connect: { id: data.questionId } },
+        author: { connect: { id: authorId } },
+      },
     })
   }
 

@@ -13,6 +13,7 @@ import { ScreenView } from './ScreenView'
 import { IFrameView } from './IFrameView'
 
 import { PRIVACY_URL, routes, TERMS_URL } from '../constants'
+import { OfficerView } from './OfficerView'
 
 export const queryClient = new QueryClient()
 
@@ -31,6 +32,7 @@ export const App: FC = () => {
               path={`${routes.question}/:questionId`}
               element={<QuestionView />}
             />
+            <Route path={`${routes.officer}`} element={<OfficerView />} />
             <Route
               path={`${routes.profile}/:userId`}
               element={<ProfileView />}

@@ -7,8 +7,4 @@ export interface User {
   createdAt: string
   updatedAt: string
   authoredQuestions?: Question[]
-  position?: string
-  headline?: string
-  canScreen?: boolean
-  canAnswer?: boolean
 }

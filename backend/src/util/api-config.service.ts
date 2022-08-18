@@ -19,7 +19,7 @@ export const validationSchema = Joi.object({
     .default('development'),
   DATABASE_URL: Joi.string().uri().required(),
   APP_PORT: Joi.number().default(6174), // The port that this service runs on.
-  FRONTEND_URL: Joi.string().uri().required(), // See auth.controller ToDo: can't rely on this default.
+  FRONTEND_URL: Joi.string().uri().required(), // See auth.controller
   SGID_CLIENT_ID: Joi.string().default('CANASKGOV-TEST'),
   SGID_CLIENT_SECRET: Joi.string().required(),
   SGID_PRIVATE_KEY: Joi.string().required(),
@@ -31,6 +31,11 @@ export const validationSchema = Joi.object({
   SESSION_NAME: Joi.string().default('CanAskGovSession'),
   SESSION_MAX_AGE: Joi.number().default(7 * 24 * 60 * 60 * 1000), // ms
   SESSION_CHECK_PERIOD: Joi.number().default(2 * 60 * 1000), // ms
+  OTP_EXPIRY: Joi.number().default(300), // Seconds before OTP expires
+  OTP_NUM_VALID_PAST_WINDOWS: Joi.number().default(1), // How many past windows (x * step) do we consider as valid during check.
+  OTP_NUM_VALID_FUTURE_WINDOWS: Joi.number().default(1), // How many future windows (x * step) do we consider as valid during check.
+  OTP_SECRET: Joi.string().required(),
+  POSTMARK_API_TOKEN: Joi.string().default('POSTMARK_API_TEST'),
 })
 
 interface EnvironmentVariables {
@@ -46,6 +51,11 @@ interface EnvironmentVariables {
   SESSION_NAME: string
   SESSION_MAX_AGE: number
   SESSION_CHECK_PERIOD: number
+  OTP_EXPIRY: number
+  OTP_NUM_VALID_PAST_WINDOWS: number
+  OTP_NUM_VALID_FUTURE_WINDOWS: number
+  OTP_SECRET: string
+  POSTMARK_API_TOKEN: string
 }
 
 @Injectable()
@@ -119,5 +129,25 @@ export class ApiConfigService {
 
   get sessionCheckPeriod(): number {
     return this.configService.get('SESSION_CHECK_PERIOD')
+  }
+
+  get otpExpiry(): number {
+    return this.configService.get('OTP_EXPIRY')
+  }
+
+  get otpNumValidPastWindows(): number {
+    return this.configService.get('OTP_NUM_VALID_PAST_WINDOWS')
+  }
+
+  get otpNumValidFutureWindows(): number {
+    return this.configService.get('OTP_NUM_VALID_FUTURE_WINDOWS')
+  }
+
+  get otpSecret(): string {
+    return this.configService.get('OTP_SECRET')
+  }
+
+  get postmarkApiToken(): string {
+    return this.configService.get('POSTMARK_API_TOKEN')
   }
 }

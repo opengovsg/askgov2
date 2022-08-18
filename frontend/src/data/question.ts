@@ -15,6 +15,7 @@ export interface Question {
   createdAt: string
   authorId: number
   author?: User
+  screenState: ScreenState
   uppedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Up.
   downedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Down.
   _count: LikeCounts

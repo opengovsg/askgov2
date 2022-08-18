@@ -2,6 +2,7 @@ export const routes = {
   index: '/',
   question: '/question',
   answer: '/answer',
+  officer: '/officer',
   profile: '/profile',
   screen: '/screen',
   login: '/login',

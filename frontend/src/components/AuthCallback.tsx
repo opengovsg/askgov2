@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Alert, Button, Spin } from 'antd'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api'
-import { routes } from '../constants'
+import { queryKey, routes } from '../constants'
 
 function useAuthMutation(onSuccess: () => void) {
   return useMutation(
@@ -32,7 +32,7 @@ export const AuthCallback = (): JSX.Element => {
 
   const queryClient = useQueryClient()
   const onAuthMutationSuccess = () => {
-    queryClient.invalidateQueries(['whoami'])
+    queryClient.invalidateQueries(queryKey.whoami)
     navigate(returnTo, { replace: true })
   }
   const authMutation = useAuthMutation(onAuthMutationSuccess)

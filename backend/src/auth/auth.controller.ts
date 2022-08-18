@@ -8,10 +8,13 @@ import {
   Query,
   Redirect,
   Session,
+  UnauthorizedException,
 } from '@nestjs/common'
+import { GenerateOtpDto, VerifyOtpDto } from './dto/otp.dto'
 import { AuthService } from './auth.service'
 import { Request } from 'express'
 import { UserService, User } from '../user'
+import { OfficerService, Officer } from '../officer'
 import { ApiConfigService } from '../util'
 
 @Controller({ path: 'auth', version: '1' })
@@ -21,6 +24,7 @@ export class AuthController {
     private apiConfigService: ApiConfigService,
     private authService: AuthService,
     private userService: UserService,
+    private officerService: OfficerService,
   ) {}
 
   @Get('url')
@@ -28,25 +32,7 @@ export class AuthController {
     return this.authService.getAuthUrl(returnTo)
   }
 
-  @Get('whoami')
-  async getUserInfo(
-    @Session() session: Request['session'],
-  ): Promise<{ currentUser: User | null }> {
-    const userId = session?.userId
-    const currentUser = userId
-      ? await this.userService.findOne({ where: { id: userId } })
-      : null
-
-    if (currentUser === null) {
-      return { currentUser: null }
-    }
-    // Look up and return user data here
-    return { currentUser: currentUser }
-  }
-
   // Handles both user registration and user log in
-  // ToDo: Refactor this to handle redirect with express response.
-  // Using the decorator does not allow us to take advantage of ApiConfigService.
   @Get('callback')
   async handleCallback(
     @Session() session: Request['session'],
@@ -76,10 +62,67 @@ export class AuthController {
     return { userId: user.id }
   }
 
+  @Post('otp/generate')
+  async generateOtp(@Body() generateOtpDto: GenerateOtpDto): Promise<void> {
+    await this.authService.generateOtp(generateOtpDto)
+  }
+
+  @Post('otp/verify')
+  async verifyOtp(
+    @Session() session: Request['session'],
+    @Body() verifyOtpDto: VerifyOtpDto,
+  ) {
+    const officer = await this.authService.verifyOtp(verifyOtpDto)
+    if (officer) {
+      session.officerId = officer.id
+      this.logger.log(
+        `Successfully verified OTP for user ${verifyOtpDto.email}`,
+      )
+      return { officerId: officer.id }
+    } else {
+      this.logger.warn(`Incorrect OTP given for ${verifyOtpDto.email}`)
+      throw new UnauthorizedException('Incorrect OTP given')
+    }
+  }
+
+  @Get('whoami')
+  async getUserInfo(
+    @Session() session: Request['session'],
+  ): Promise<{ currentUser: User | null; currentOfficer: Officer | null }> {
+    const userId = session?.userId
+    const officerId = session?.officerId
+    const currentUser = userId
+      ? await this.userService.findOne({ where: { id: userId } })
+      : null
+    const currentOfficer = officerId
+      ? await this.officerService.findOne({
+          where: { id: officerId },
+          include: { permissions: true },
+        })
+      : null
+
+    return { currentUser, currentOfficer }
+  }
+
   @Post('logout')
   async logout(@Session() session: Request['session']): Promise<void> {
     if (session) {
       session.userId = undefined
+      session.officerId = undefined
+    }
+  }
+
+  @Post('logout/user')
+  async logoutUser(@Session() session: Request['session']): Promise<void> {
+    if (session) {
+      session.userId = undefined
+    }
+  }
+
+  @Post('logout/officer')
+  async logoutOfficer(@Session() session: Request['session']): Promise<void> {
+    if (session) {
+      session.officerId = undefined
     }
   }
 }

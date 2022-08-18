@@ -4,43 +4,24 @@ import { QuestionList } from './QuestionList'
 import {
   LikeType,
   postQuestions,
+  postAnswer,
   questionListQueryUpdateQuestionLikesFn,
   useLikeMutation,
   useQuestionsQuery,
   useTagsQuery,
+  useAskMutation,
+  useApprovedQuestionsQuery,
 } from '../api'
 import { useMutation } from '@tanstack/react-query'
-import { Like, Question, ScreenState } from '../data'
+import { canAnswer, Like, Permission, Question, ScreenState } from '../data'
 import { useCheckLogin } from './Frame'
 import { checkNonAuthorLike } from './dialogs'
 import { SearchParam } from '../constants'
-import { createSearchParams, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { asErr } from '../util'
+import { useTags } from './links'
 
 interface HomeViewProps {}
-
-function useTags() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  return searchParams.getAll(SearchParam.tag)
-}
-
-function useAskMutation(tags: string[]) {
-  return useMutation(
-    (newQuestion: string) => postQuestions(newQuestion, tags),
-    {
-      onError: (error, variables, context) => {
-        notification.error({
-          message: 'Could not submit question',
-          description: `${error}`,
-        })
-      },
-      // onSuccess: (data, variables, context) => {
-      //   notification.success({
-      //     message: 'Question Submitted',
-      //   })
-      // },
-    },
-  )
-}
 
 function sortedQuestions(questions?: Question[]) {
   if (questions === undefined) {
@@ -49,7 +30,7 @@ function sortedQuestions(questions?: Question[]) {
 }
 
 export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
-  const { checkLogin, currentUser } = useCheckLogin()
+  const { checkLogin, currentUser, currentOfficer } = useCheckLogin()
 
   // Setup Ask Dialog
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -80,11 +61,7 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
 
   // Setup Questions and like callbacks.
   const QUESTIONS_QUERY_KEY = ['questions']
-  const questionsQuery = useQuestionsQuery(
-    QUESTIONS_QUERY_KEY,
-    tags,
-    ScreenState.APPROVED,
-  )
+  const questionsQuery = useApprovedQuestionsQuery(QUESTIONS_QUERY_KEY, tags)
   const likeMutation = useLikeMutation(
     LikeType.QUESTION,
     questionListQueryUpdateQuestionLikesFn(QUESTIONS_QUERY_KEY),
@@ -106,7 +83,9 @@ export const HomeView: FC<HomeViewProps> = (props: HomeViewProps) => {
   return (
     <>
       {tags.length > 0 && tagsQuery.data && (
-        <Typography.Title level={2}>{tagsQuery.data[0].name}</Typography.Title>
+        <Typography.Title level={2} style={{ margin: '30px 0' }}>
+          {tagsQuery.data[0].name}
+        </Typography.Title>
       )}
       <Card
         // margin: vertical | horizontal

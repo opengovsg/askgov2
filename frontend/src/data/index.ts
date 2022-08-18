@@ -1,4 +1,5 @@
 export * from './user'
+export * from './officer'
 export * from './like'
 export * from './question'
 export * from './answer'

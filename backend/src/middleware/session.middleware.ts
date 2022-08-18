@@ -6,6 +6,7 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 
 export interface UserSession {
   userId?: number
+  officerId?: number
 }
 
 declare module 'express-session' {

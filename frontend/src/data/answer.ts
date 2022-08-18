@@ -4,7 +4,7 @@ import { LikeCounts } from './like'
 export interface Answer {
   id: number
   question?: Question
-  questionId?: number
+  questionId: number
   body: string
   createdAt: string
   uppedBy: { createdAt: string }[] // Should contain one element if logged in user clicked Up.

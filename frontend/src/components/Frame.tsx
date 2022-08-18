@@ -28,12 +28,21 @@ import {
   Divider,
   Space,
 } from 'antd'
+import type { LegacyButtonType } from 'antd/lib/button/button'
+import type { PopconfirmProps } from 'antd/lib/popconfirm'
 import { UserOutlined } from '@ant-design/icons'
-import { routes } from '../constants/routes'
+import { routes } from '../constants'
 import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query'
-import { api, postQuestions } from '../api'
-import { User } from '../data/user'
-import { Question } from '../data/question'
+import {
+  api,
+  postQuestions,
+  useWhoamiQuery,
+  useLogoutUserMutation,
+  useLoginUrlQuery,
+  useLogoutOfficerMutation,
+  useLogoutMutation,
+} from '../api'
+import { User, Officer } from '../data'
 import { Footer } from 'antd/es/layout/layout'
 import { LoginPrompt } from './LoginPrompt'
 import { useGlobalSearchParams } from './links'
@@ -53,6 +62,7 @@ const feedbackUrl = 'https://go.gov.sg/askgov-feedback'
 type ContextType = {
   checkLogin: () => boolean
   currentUser?: User
+  currentOfficer?: Officer
 }
 export function useCheckLogin() {
   return useOutletContext<ContextType>()
@@ -60,88 +70,100 @@ export function useCheckLogin() {
 
 interface FrameProps {}
 
-function useCurrentUser() {
-  return useQuery(['whoami'], () =>
-    api.url(`/auth/whoami`).get().json<{ currentUser: User | null }>(),
-  )
-}
-
-function useLoginUrl(data?: { currentUser: User | null }) {
-  const location = useLocation()
-  const returnTo = `${location.pathname}${location.search}${location.hash}`
-  return useQuery(
-    ['login_url'],
-    () =>
-      api.url(`/auth/url`).query({ returnTo }).get().json<{ url: string }>(),
-    { enabled: data && data.currentUser === null },
-  )
-}
-
-function useLogoutMutation() {
-  return useMutation(() => api.url('/auth/logout').post().text(), {
-    onError: (error) => {
-      notification.error({
-        message: 'Could no sign out!',
-        description: JSON.stringify(error),
-      })
-    },
-  })
-}
-
 function userPopconfirmContent(
-  queryResult: UseQueryResult<{ currentUser: User | null }>,
+  queryResult: UseQueryResult<{
+    currentUser: User | null
+    currentOfficer: Officer | null
+  }>,
   login: () => void,
   logout: () => void,
-) {
+  officer: () => void,
+): PopconfirmProps {
   const { isLoading, isError, error, data } = queryResult
 
   if (isLoading) {
     return {
       title: () => <span>Loading...</span>,
       okText: 'OK',
+      okType: 'ghost',
       onConfirm: () => {},
+      showCancel: false,
     }
   } else if (isError) {
     console.log(`Current User load error: ${error}`)
     return {
       title: () => <span>Error</span>,
       okText: 'Bummer',
+      okType: 'ghost',
       onConfirm: () => {},
+      showCancel: false,
     }
-  } else if (data.currentUser === null) {
+  } else if (!data.currentUser && !data.currentOfficer) {
     return {
       title: () => <span>Not signed in</span>,
       okText: 'Sign In',
+      okType: 'ghost',
       onConfirm: login,
+      showCancel: false,
     }
-  } else {
+  } else if (data.currentUser && !data.currentOfficer) {
     // const publicName = data.currentUser.publicName
     return {
-      title: () => <span>Signed in</span>,
+      title: () => <span>Signed In</span>,
       okText: 'Sign Out',
+      okType: 'ghost',
       onConfirm: logout,
+      showCancel: false,
+    }
+  } else if (!data.currentUser && data.currentOfficer) {
+    // const publicName = data.currentUser.publicName
+    return {
+      title: () => <span>Signed in as {data.currentOfficer?.email} </span>,
+      okText: 'Sign Out',
+      okType: 'ghost',
+      onConfirm: logout,
+      showCancel: true,
+      cancelText: 'Profile',
+      onCancel: officer,
+    }
+  } else {
+    return {
+      title: () => (
+        <span>
+          Signed in as {data.currentOfficer?.email} and member of the public{' '}
+        </span>
+      ),
+      okText: 'Sign Out',
+      okType: 'ghost',
+      onConfirm: logout,
+      showCancel: true,
+      cancelText: 'Profile',
+      onCancel: officer,
     }
   }
 }
 
 export const Frame: FC<FrameProps> = (props: FrameProps) => {
   const navigate = useNavigate()
-  const userQueryResult = useCurrentUser()
-  const { data } = useLoginUrl(userQueryResult.data)
+  const userQueryResult = useWhoamiQuery()
+  const { data } = useLoginUrlQuery(userQueryResult.data)
   const url = data?.url
   const logoutMutation = useLogoutMutation()
   const globalSearchParams = useGlobalSearchParams()
   const logout = () => {
     logoutMutation.mutate()
-    window.location.reload()
   }
   const login = () => {
     if (url) window.location.replace(url)
   }
-  const { title, okText, onConfirm } = userPopconfirmContent(
+  const officer = () => {
+    navigate(`${routes.officer}?${globalSearchParams}`)
+  }
+  const popconfirmProps = userPopconfirmContent(
     userQueryResult,
     login,
     logout,
+    officer,
   )
 
   let menuItems: MenuProps['items'] = [{ key: routes.index, label: 'Home' }]
@@ -201,13 +223,10 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
           <Col span={2}>
             <Popconfirm
               placement="bottom"
-              title={title}
-              showCancel={false}
               icon={null}
-              okText={okText}
-              onConfirm={onConfirm}
               trigger="click"
               style={{ marginLeft: 'auto' }}
+              {...popconfirmProps}
             >
               <Button
                 shape="circle"
@@ -231,15 +250,15 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
       <Content style={{ padding: '0 50px' }}>
         <Alert
           message="Note"
-          description="This website is in a testing state."
+          description="Note: This website is in a testing state. Send us feedback at <askgov@open.gov.sg>"
           type="warning"
           closable
           showIcon
-          action={
-            <Button size="small" href={feedbackUrl} type="ghost">
-              Feedback
-            </Button>
-          }
+          // action={
+          //   <Button size="small" href={feedbackUrl} type="ghost">
+          //     Feedback
+          //   </Button>
+          // }
           style={{ margin: '15px 0' }}
         />
         <LoginPrompt
@@ -251,6 +270,7 @@ export const Frame: FC<FrameProps> = (props: FrameProps) => {
           context={{
             checkLogin,
             currentUser: userQueryResult.data?.currentUser ?? undefined,
+            currentOfficer: userQueryResult.data?.currentOfficer ?? undefined,
           }}
         />
       </Content>

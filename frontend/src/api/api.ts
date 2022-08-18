@@ -1,6 +1,6 @@
 import wretch from 'wretch'
 import QueryStringAddon from 'wretch/addons/queryString'
-import { Question, ScreenState, Tag } from '../data'
+import { Answer, Question, ScreenState, Tag } from '../data'
 import { API_BASE_URL } from '../constants'
 
 /**
@@ -28,6 +28,15 @@ export async function getQuestions(tags: string[], screenState?: ScreenState) {
   return url.query(query).get().json<Question[]>()
 }
 
+export async function getApprovedQuestions(tags: string[]) {
+  let url = api.url(`/question/approved`)
+  let query: object = {}
+  if (tags.length > 0) {
+    query = { tag: tags, ...query }
+  }
+  return url.query(query).get().json<Question[]>()
+}
+
 export async function getTags(tags: string[]) {
   let url = api.url(`/tag`)
   let query: object = {}
@@ -43,4 +52,18 @@ export async function postQuestions(body: string, tags: string[]) {
     .query({ tag: tags })
     .post({ body })
     .json<Question>()
+}
+
+export async function patchScreenState(
+  questionId: number,
+  screenState: ScreenState,
+) {
+  return api
+    .url(`/question/${questionId}/screen`)
+    .patch({ screenState })
+    .json<Question>()
+}
+
+export async function postAnswer(params: { questionId: number; body: string }) {
+  return api.url(`/answer`).post(params).json<Answer>()
 }
