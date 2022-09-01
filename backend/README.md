@@ -1,4 +1,4 @@
-# CanAskGov Backend
+# AskGov2 Backend
 
 
 ## Installation

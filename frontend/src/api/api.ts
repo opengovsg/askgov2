@@ -1,6 +1,6 @@
-import wretch from 'wretch'
+import wretch, {WretchResponseChain} from 'wretch'
 import QueryStringAddon from 'wretch/addons/queryString'
-import { Answer, Question, ScreenState, Tag } from '../data'
+import {Answer, Officer, Question, ScreenState, Tag, User, WhoamiResult} from '../data'
 import { API_BASE_URL } from '../constants'
 
 /**
@@ -15,6 +15,15 @@ export const api = wretch(API_BASE_URL + '/api/v1')
     throw err
   })
   .errorType('json')
+
+export function getWhoami() {
+  return api
+    .url(`/auth/whoami`)
+    .get()
+    .json<WhoamiResult>()
+}
+
+
 
 export async function getQuestions(tags: string[], screenState?: ScreenState) {
   let url = api.url(`/question`)

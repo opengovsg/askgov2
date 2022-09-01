@@ -1,15 +1,23 @@
 {
-  "name": "canaskgov",
+  "name": "askgov2",
   "version": "0.0.1",
-  "description": "\"can.ask.gov.sg - Authoritative Answers to Public Questions\"",
-  "main": "index.js",
+  "description": "\"v2.ask.gov.sg - Authoritative Answers to Public Questions\"",
+  "main": "backend/build/index.js",
   "scripts": {
     "start": "npm --prefix server start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "backend": "npm run start:dev --prefix backend",
+    "frontend": "npm start --prefix frontend",
+    "dev": "concurrently \"./wait-for-it.sh localhost:5432 -t 0 -- npm run backend\" \"npm run frontend\" \"docker-compose up \"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:status": "npm run db:status --prefix backend",
+    "db:deploy": "npm run db:deploy --prefix backend",
+    "db:seed": "npm run db:seed --prefix backend",
+    "storybook": "npm run --prefix frontend storybook"
   },
   "author": "Richard C. Davis",
   "license": "MIT",
   "devDependencies": {
+    "concurrently": "^7.3.0",
     "prettier": "^2.7.1"
   }
 }

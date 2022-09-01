@@ -1,15 +1,16 @@
 export const routes = {
-  index: '/',
-  question: '/question',
-  answer: '/answer',
-  officer: '/officer',
-  profile: '/profile',
-  screen: '/screen',
-  login: '/login',
-  health: '/health',
+  antbase: '/',
+  base: '/chakra',
+  question: 'question/:id',
+  answer: 'answer',
+  officer: 'officer',
+  profile: 'profile/:userId',
+  screen: 'screen',
+  login: 'login',
+  health: 'health',
+  termsOfUse: 'terms',
+  privacyStatement: 'privacy',
   authCallback: '/auth-callback',
-  termsOfUse: '/terms',
-  privacyStatement: '/privacy',
 }
 
 export enum SearchParam {

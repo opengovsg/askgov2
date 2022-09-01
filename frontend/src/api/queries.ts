@@ -13,6 +13,7 @@ import {
   ScreenState,
   User,
   UserLikeData,
+  WhoamiResult,
 } from '../data'
 import {
   api,
@@ -22,8 +23,8 @@ import {
   postAnswer,
   postQuestions,
   patchScreenState,
+  getWhoami,
 } from './api'
-import { notification } from 'antd'
 import { asErr } from '../util'
 import { queryKey } from '../constants'
 import { useLocation } from 'react-router-dom'
@@ -39,123 +40,113 @@ export function useLoginUrlQuery(data?: { currentUser: User | null }) {
   )
 }
 
-export function useLogoutMutation() {
+export function useLogoutMutation(
+  onSuccess?: (data: string) => void,
+  onError?: (error: unknown) => void,
+) {
   const queryClient = useQueryClient()
   return useMutation(() => api.url('/auth/logout').post().text(), {
-    onError: (error) => {
-      notification.error({
-        message: 'Could no sign out!',
-        description: JSON.stringify(error),
-      })
-    },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(queryKey.whoami)
+      onSuccess && onSuccess(data)
     },
+    onError: onError,
   })
 }
 
-export function useLogoutUserMutation() {
+export function useLogoutUserMutation(
+  onSuccess?: (data: string) => void,
+  onError?: (error: unknown) => void,
+) {
   const queryClient = useQueryClient()
   return useMutation(() => api.url('/auth/logout/user').post().text(), {
-    onError: (error) => {
-      notification.error({
-        message: 'Could no sign out!',
-        description: JSON.stringify(error),
-      })
-    },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(queryKey.whoami)
+      onSuccess && onSuccess(data)
     },
+    onError: onError,
   })
 }
 
-export function useLogoutOfficerMutation() {
+export function useLogoutOfficerMutation(
+  onSuccess?: (data: string) => void,
+  onError?: (error: unknown) => void,
+) {
   const queryClient = useQueryClient()
   return useMutation(() => api.url('/auth/logout/officer').post().text(), {
-    onError: (error) => {
-      notification.error({
-        message: 'Could no sign out!',
-        description: JSON.stringify(error),
-      })
-    },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(queryKey.whoami)
+      onSuccess && onSuccess(data)
     },
+    onError: onError,
   })
 }
 
 export function useWhoamiQuery() {
-  return useQuery(queryKey.whoami, () =>
-    api
-      .url(`/auth/whoami`)
-      .get()
-      .json<{ currentUser: User | null; currentOfficer: Officer | null }>(),
-  )
+  return useQuery(queryKey.whoami, () => getWhoami())
 }
 
-export function useAskMutation(tags: string[]) {
+export function useAskMutation(
+  tags: string[],
+  onSuccess?: (data: Question, variables: string) => void,
+  onError?: (error: unknown, variables: string) => void,
+) {
   return useMutation(
     (newQuestion: string) => postQuestions(newQuestion, tags),
     {
-      onError: (error, variables, context) => {
-        const err = asErr(error)
-        notification.error({
-          message: 'Could not submit question',
-          description: `${err.message}`,
-        })
-      },
-      // onSuccess: (data, variables, context) => {
-      //   notification.success({
-      //     message: 'Question Submitted',
-      //   })
-      // },
+      onSuccess: onSuccess,
+      onError: onError,
     },
   )
 }
 
 export function useAnswerMutation(
   invalidQueryKey: QueryKey,
-  onSuccess?: () => void,
+  onSuccess?: (
+    data: Answer,
+    variables: { questionId: number; body: string },
+  ) => void,
+  onError?: (
+    error: unknown,
+    variables: { questionId: number; body: string },
+  ) => void,
 ) {
   const queryClient = useQueryClient()
   return useMutation(
     (params: { questionId: number; body: string }) => postAnswer(params),
     {
-      onError: (error, variables, context) => {
-        const err = asErr(error)
-        notification.error({
-          message: 'Could not submit answer',
-          description: `${err.message}`,
-        })
-      },
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         queryClient.invalidateQueries(invalidQueryKey)
-        onSuccess && onSuccess()
+        onSuccess && onSuccess(data, variables)
       },
+      onError: onError,
     },
   )
 }
 
 export function usePatchScreenStateMutation(
   invalidQueryKey: QueryKey,
-  onSuccess?: () => void,
+  onSuccess?: (
+    data: Question,
+    varibles: { questionId: number; screenState: ScreenState },
+  ) => void,
+  onError?: (
+    error: unknown,
+    varibles: { questionId: number; screenState: ScreenState },
+  ) => void,
 ) {
   const queryClient = useQueryClient()
   return useMutation(
     (params: { questionId: number; screenState: ScreenState }) =>
       patchScreenState(params.questionId, params.screenState),
     {
-      onError: (error, variables, context) => {
-        const err = asErr(error)
-        notification.error({
-          message: 'Could not change screen state',
-          description: `${err.message}`,
-        })
+      onSuccess: (data, variables) => {
         queryClient.invalidateQueries(invalidQueryKey)
+        onSuccess && onSuccess(data, variables)
       },
-      onSuccess: () => {
+      onError: (error, variables) => {
         queryClient.invalidateQueries(invalidQueryKey)
-        onSuccess && onSuccess()
+        onError && onError(error, variables)
       },
     },
   )
@@ -199,6 +190,7 @@ export enum LikeType {
 export function useLikeMutation(
   likeType: LikeType,
   updateLikesFn: UpdateLikesFn,
+  onError?: (error: unknown, variables: { id: number; like: Like }) => void,
 ) {
   const queryClient = useQueryClient()
   const updateLikes = updateLikesFn.bind(null, queryClient)
@@ -215,15 +207,8 @@ export function useLikeMutation(
       }
     },
     {
-      onError: (error, variables, context) => {
-        const e = asErr(error)
-        notification.error({
-          message: 'Could not perform Like operation',
-          description: `${e.name}: ${e.message}`,
-          // duration: 0,
-        })
-      },
       onSuccess: updateLikes,
+      onError: onError,
     },
   )
 }
@@ -298,46 +283,43 @@ export function questionQueryUpdateAnswerLikesFn(invalidQueryKey: QueryKey) {
   }
 }
 
-export function useOtpGenerateMutation(onSuccess?: () => void) {
+export function useOtpGenerateMutation(
+  onSuccess?: (data: string, variables: { email: string }) => void,
+  onError?: (error: unknown, variables: { email: string }) => void,
+) {
   return useMutation(
     (params: { email: string }) => {
       const { email } = params
       return api.url(`/auth/otp/generate`).post(params).text()
     },
     {
-      onError: (error, variables, context) => {
-        const e = asErr(error)
-        notification.error({
-          message: 'Could not request one-time password',
-          description: `${e.name}: ${e.message}`,
-          // duration: 0,
-        })
-      },
       onSuccess: onSuccess,
+      onError: onError,
     },
   )
 }
 
-export function useOtpVerifyMutation(onSuccess?: () => void) {
+export function useOtpVerifyMutation(
+  onSuccess?: (
+    data: string,
+    variables: { email: string; token: string },
+  ) => void,
+  onError?: (
+    error: unknown,
+    variables: { email: string; token: string },
+  ) => void,
+) {
   const queryClient = useQueryClient()
   return useMutation(
     (params: { email: string; token: string }) => {
-      const { email } = params
       return api.url(`/auth/otp/verify`).post(params).text()
     },
     {
-      onError: (error, variables, context) => {
-        const e = asErr(error)
-        notification.error({
-          message: 'Verification Failed.',
-          description: `Could not verify one-time password. Please try again.`,
-          // duration: 0,
-        })
-      },
-      onSuccess: () => {
+      onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries(queryKey.whoami)
-        onSuccess && onSuccess()
+        onSuccess && onSuccess(data, variables)
       },
+      onError: onError,
     },
   )
 }

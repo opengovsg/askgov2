@@ -1,0 +1,55 @@
+.rdw-editor-wrapper {
+  .rdw-link-decorator-wrapper {
+    a {
+      span[data-text=true] {
+        text-decoration: underline !important;
+      }
+    }
+    &:not(:hover) {
+      color: var(--chakra-colors-primary-800);
+      > ::after {
+        background: transparent url(../../assets/link-hint.svg) 0 0 no-repeat;
+        text-decoration: none !important;
+        display: inline-block;
+        margin-left: 4px;
+        background-size: 12px;
+        width: 12px;
+        height: 12px;
+        content: "";
+      }
+    }
+    &:focus {
+      border-width: 2px;
+      border-color: var(--chakra-colors-primary-600);
+    }
+    &:hover {
+      color: var(--chakra-colors-primary-600);
+      > ::after {
+        background: transparent url(../../assets/link-hint-hover.svg) 0 0 no-repeat;
+        text-decoration: none !important;
+        display: inline-block;
+        margin-left: 4px;
+        background-size: 12px;
+        width: 12px;
+        height: 12px;
+        content: "";
+      }
+    }
+  }
+
+  .rdw-dropdown-wrapper {
+    margin-bottom: 6px;
+  }
+
+  .rdw-option-wrapper,
+  .rdw-dropdown-wrapper {
+    background: #bdbdbd;
+    border-color: transparent;
+  }
+
+  .rdw-option-wrapper:active,
+  .rdw-dropdown-wrapper:hover,
+  .rdw-dropdown-optionwrapper {
+    background: #e6e7ea;
+  }
+}
