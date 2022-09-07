@@ -40,10 +40,10 @@ export const AuthCallback = (): JSX.Element => {
   // The Ref is required because we want to send the auth call exactly once.
   // Passing [] as dependencies argument to useEffect used to ensure this, but no longer.
   // See: https://reactjs.org/docs/strict-mode.html#ensuring-reusable-state
-  const authMustationSent = useRef(false)
+  const authMutationSent = useRef(false)
   useEffect(() => {
-    if (!authMustationSent.current) {
-      authMustationSent.current = true
+    if (!authMutationSent.current) {
+      authMutationSent.current = true
       authMutation.mutate({ code, state })
     }
   }, [])

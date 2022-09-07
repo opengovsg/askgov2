@@ -22,3 +22,7 @@ export interface Question {
   answers?: Answer[]
   tags?: QuestionTag[]
 }
+
+export interface QuestionCount {
+  _all: number
+}

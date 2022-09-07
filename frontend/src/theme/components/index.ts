@@ -8,7 +8,7 @@ import { ImageControl } from './ImageControl'
 import { OptionsMenu } from './OptionsMenu'
 import { Pagination } from './Pagination'
 import { Post } from './Post'
-import { PostItem } from './PostItem'
+import { QuestionListItem } from './QuestionListItem'
 import { PrivacyTerms } from './PrivacyTerms'
 import { SearchBox } from './SearchBox'
 import { SearchResults } from './SearchResults'
@@ -23,7 +23,7 @@ export const components = {
   SearchBox,
   Pagination,
   Post,
-  PostItem,
+  QuestionListItem,
   PrivacyTerms,
   ImageControl,
   ImageBlock,

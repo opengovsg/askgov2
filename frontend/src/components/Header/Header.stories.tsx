@@ -3,27 +3,31 @@ import { rest } from 'msw'
 
 import Header from './Header.component'
 import { API_BASE_URL } from '../../constants'
-import { User, WhoamiResult } from '../../data'
-import { mockOfficerData, mockUserData } from '../../__mocks__/mockData'
+import {
+  mockAuthUrl,
+  mockedWhoamiLoggedOut,
+  mockedWhoamiOfficer,
+  mockedWhoamiUser,
+} from '../../__mocks__/mockData'
 
 export default {
   title: 'Components/Headers/Header',
   component: Header,
 } as ComponentMeta<typeof Header>
 
-const Template: ComponentStory<typeof Header> = () => <Header />
+const Template: ComponentStory<typeof Header> = (args) => <Header {...args} />
 
 export const LoggedOut = Template.bind({})
-const loggedOutWhoami: WhoamiResult = {
-  currentUser: null,
-  currentOfficer: null,
+LoggedOut.args = {
+  showSearch: false,
+  showId: false,
 }
 LoggedOut.parameters = {
   msw: {
     handlers: {
       auth: [
         rest.get(API_BASE_URL + '/api/v1/auth/whoami', (_req, res, ctx) => {
-          return res(ctx.json(loggedOutWhoami))
+          return res(ctx.json(mockedWhoamiLoggedOut))
         }),
       ],
     },
@@ -31,33 +35,22 @@ LoggedOut.parameters = {
 }
 
 export const LoggedInUser = Template.bind({})
-const loggedInUserWhoami: WhoamiResult = {
-  currentUser: mockUserData,
-  currentOfficer: null,
-}
-LoggedInUser.parameters = {
-  msw: {
-    handlers: {
-      auth: [
-        rest.get(API_BASE_URL + '/api/v1/auth/whoami', (_req, res, ctx) => {
-          return res(ctx.json(loggedInUserWhoami))
-        }),
-      ],
-    },
-  },
+LoggedInUser.args = {
+  showSearch: false,
+  showId: false,
 }
 
 export const LoggedInOfficer = Template.bind({})
-const loggedInOfficerWhoami: WhoamiResult = {
-  currentUser: null,
-  currentOfficer: mockOfficerData,
+LoggedInOfficer.args = {
+  showSearch: false,
+  showId: false,
 }
 LoggedInOfficer.parameters = {
   msw: {
     handlers: {
       auth: [
         rest.get(API_BASE_URL + '/api/v1/auth/whoami', (_req, res, ctx) => {
-          return res(ctx.json(loggedInOfficerWhoami))
+          return res(ctx.json(mockedWhoamiOfficer))
         }),
       ],
     },

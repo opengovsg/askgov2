@@ -1,49 +1,16 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import { rest } from 'msw'
 
-import {
-  MockAgencyShortNameData,
-  MockPostData,
-  MockTopicData,
-  MockUserData,
-} from '../../__mocks__/mockData'
-
 import HomePage from './HomePage.component'
+import { API_BASE_URL } from '../../constants'
+import {
+  mockQuestionCount,
+  mockQuestionListDataApproved,
+} from '../../__mocks__/mockData'
 
 export default {
   title: 'Pages/HomePage',
   component: HomePage,
-  parameters: {
-    msw: {
-      handlers: {
-        topics: [
-          rest.get('/api/v1/topics', (_req, res, ctx) => {
-            return res(ctx.json(MockTopicData))
-          }),
-        ],
-        posts: [
-          rest.get('/api/v1/posts', (_req, res, ctx) => {
-            return res(ctx.json(MockPostData))
-          }),
-        ],
-        answerable: [
-          rest.get('/api/v1/posts/answerable', (_req, res, ctx) => {
-            return res(ctx.json(MockPostData))
-          }),
-        ],
-        auth: [
-          rest.get('/api/v1/auth', (_req, res, ctx) => {
-            return res(ctx.json(MockUserData))
-          }),
-        ],
-        agency: [
-          rest.get('/api/v1/agencies/shortnames', (_req, res, ctx) => {
-            return res(ctx.json(MockAgencyShortNameData))
-          }),
-        ],
-      },
-    },
-  },
 } as ComponentMeta<typeof HomePage>
 
 const Template: ComponentStory<typeof HomePage> = () => <HomePage />
@@ -53,10 +20,19 @@ export const LoggedOut = Template.bind({})
 LoggedOut.parameters = {
   msw: {
     handlers: {
-      auth: [
-        rest.get('/api/v1/auth', (_req, res, ctx) => {
-          return res(ctx.status(401))
-        }),
+      questions: [
+        rest.get(
+          API_BASE_URL + '/api/v1/question/approved',
+          (_req, res, ctx) => {
+            return res(ctx.json(mockQuestionListDataApproved))
+          },
+        ),
+        rest.get(
+          API_BASE_URL + '/api/v1/question/approved/count',
+          (_req, res, ctx) => {
+            return res(ctx.json(mockQuestionCount))
+          },
+        ),
       ],
     },
   },

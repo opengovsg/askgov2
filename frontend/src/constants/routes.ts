@@ -4,7 +4,7 @@ export const routes = {
   question: 'question/:id',
   answer: 'answer',
   officer: 'officer',
-  profile: 'profile/:userId',
+  profile: 'profile',
   screen: 'screen',
   login: 'login',
   health: 'health',

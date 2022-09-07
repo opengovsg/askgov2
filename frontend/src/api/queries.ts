@@ -18,6 +18,8 @@ import {
 import {
   api,
   getApprovedQuestions,
+  getApprovedQuestionsPage,
+  getApprovedQuestionsCount,
   getQuestions,
   getTags,
   postAnswer,
@@ -162,6 +164,30 @@ export function useQuestionsQuery(
 
 export function useApprovedQuestionsQuery(queryKey: QueryKey, tags: string[]) {
   return useQuery(queryKey, () => getApprovedQuestions(tags))
+}
+
+export function useApprovedQuestionsPageQuery(
+  queryKey: QueryKey,
+  page: number,
+  questionsPerPage: number,
+  tags: string[],
+) {
+  return useQuery(
+    queryKey,
+    () => getApprovedQuestionsPage(page, questionsPerPage, tags),
+    {
+      keepPreviousData: true,
+    },
+  )
+}
+
+export function useApprovedQuestionsCountQuery(
+  queryKey: QueryKey,
+  tags: string[],
+) {
+  return useQuery(queryKey, () => getApprovedQuestionsCount(tags), {
+    keepPreviousData: true,
+  })
 }
 
 export function useQuestionQuery(queryKey: QueryKey, id?: string) {

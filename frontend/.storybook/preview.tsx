@@ -10,6 +10,8 @@ import { HelmetProvider } from 'react-helmet-async'
 // import { MockUserData } from '../src/__mocks__/mockData'
 import { breakpoints } from '../src/theme/breakpoints'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { API_BASE_URL } from '../src/constants'
+import { mockAuthUrl, mockedWhoamiUser } from '../src/__mocks__/mockData'
 
 // Initialize Mock Service Worker
 initialize()
@@ -93,22 +95,16 @@ export const parameters = {
   },
   msw: {
     handlers: {
-      // auth: [
-      //   rest.get('/api/v1/auth', (_req, res, ctx) => {
-      //     return res(ctx.json(MockUserData))
-      //   }),
-      // ],
-      // environment: [
-      //   rest.get('/api/v1/environment', (_req, res, ctx) => {
-      //     return res(
-      //       ctx.json({
-      //         bannerMessage: '',
-      //         googleAnalyticsId: 'UA-123456789-3',
-      //         fullStoryOrgId: 'ABC123',
-      //       }),
-      //     )
-      //   }),
-      // ],
+      loginUrl: [
+        rest.get(API_BASE_URL + '/api/v1/auth/url', (_req, res, ctx) => {
+          return res(ctx.json(mockAuthUrl))
+        }),
+      ],
+      auth: [
+        rest.get(API_BASE_URL + '/api/v1/auth/whoami', (_req, res, ctx) => {
+          return res(ctx.json(mockedWhoamiUser))
+        }),
+      ],
     },
   },
 }

@@ -7,6 +7,7 @@ import {
   Button,
   Collapse,
   Flex,
+  Spacer,
   HStack,
   Image,
   Link,
@@ -33,11 +34,24 @@ import LinkButton from '../LinkButton/LinkButton.component'
 import Masthead from '../Masthead/Masthead.component'
 import { SearchBox } from '../SearchBox/SearchBox.component'
 import Spinner from '../Spinner/Spinner.component'
-import { usePathGenerator } from '../../util'
+import { asErr, usePathGenerator } from '../../util'
+import { useLogoutMutation } from '../../api'
+import { useStyledToast } from '../StyledToast/StyledToast'
+import { routes } from '../../constants'
 
-const Header = (): JSX.Element => {
+interface HeaderProps {
+  showSearch?: boolean
+  showId?: boolean
+}
+
+const Header = ({ showSearch, showId }: HeaderProps): JSX.Element => {
   const styles = useMultiStyleConfig('Header', {})
-  const { currentUser: user, currentOfficer: officer, logout } = useAuth()
+  const {
+    currentUser: user,
+    currentOfficer: officer,
+    loginUrl,
+    logout,
+  } = useAuth()
 
   const location = useLocation()
   // const { search } = useLocation()
@@ -67,39 +81,59 @@ const Header = (): JSX.Element => {
   //   { enabled: Boolean(agencyShortName) },
   // )
 
+  const deviceType = useDetectDevice()
+
+  const login = () => {
+    if (loginUrl) window.location.replace(loginUrl)
+  }
   const AuthLinks = () => (
-    <Flex align="center" mx={6}>
+    <HStack justify="end">
       {user === null && officer === null ? (
-        <Spinner centerWidth="50px" centerHeight="50px" />
+        loginUrl ? (
+          <LinkButton text="Log in" link="" onClick={login} />
+        ) : (
+          <LinkButton text="Log in" link="" disabled={true} />
+        )
       ) : (
         <>
-          <Text textStyle="body-2" mr={2} color="secondary.700">
-            {user && 'Public User'}
-            {officer && officer.email}
-          </Text>
-          <Image
-            alt="user-logo"
-            boxSize={8}
-            borderRadius="3px"
-            mr={4}
-            src={`https://secure.gravatar.com/avatar/${
-              user
-                ? md5(`${user.openid}@openid.ask.gov.sg`)
-                : officer
-                ? md5(officer.email)
-                : '00000000000000000000000000000000'
-            }?s=164&d=identicon`}
-            loading="lazy"
-            crossOrigin=""
-          />
+          {showId && (
+            <>
+              <Text textStyle="body-2" mr={2} color="secondary.700">
+                {user && 'Public User'}
+                {officer && officer.email}
+              </Text>
+              <Image
+                alt="user-logo"
+                boxSize={8}
+                borderRadius="3px"
+                mr={4}
+                src={`https://secure.gravatar.com/avatar/${
+                  user
+                    ? md5(`${user.openid}@openid.ask.gov.sg`)
+                    : officer
+                    ? md5(officer.email)
+                    : '00000000000000000000000000000000'
+                }?s=164&d=identicon`}
+                loading="lazy"
+                crossOrigin=""
+              />
+            </>
+          )}
+          {officer && deviceType !== DeviceType.Mobile && (
+            <LinkButton
+              text="Profile"
+              link={pathGen.get(routes.profile)}
+              mr={4}
+            />
+          )}
+          <LinkButton text={'Log out'} link="" handleClick={logout} />
         </>
       )}
-      <LinkButton text={'Log out'} link={'/login'} handleClick={logout} />
-    </Flex>
+    </HStack>
   )
 
   // Look for /questions to catch search result and post pages
-  const matchQuestions = matchPath('/questions/*', location.pathname)
+  const matchQuestions = matchPath(routes.question, location.pathname)
   const {
     isOpen: headerIsOpen,
     onOpen: openHeader,
@@ -110,8 +144,6 @@ const Header = (): JSX.Element => {
     if (window.pageYOffset > 280) closeHeader()
     else if (window.pageYOffset < 5) openHeader()
   }
-
-  const deviceType = useDetectDevice()
 
   // attach to matchQuestions?.path instead of matchQuestions because matchQuestions is
   // an object and will trigger the callback without values within the object changing
@@ -151,20 +183,28 @@ const Header = (): JSX.Element => {
             <Collapse in={headerIsOpen} animateOpacity={false}>
               <Flex justify="space-between" sx={styles.logoBarMobile}>
                 <Logo />
-                {user && <AuthLinks />}
+                <AuthLinks />
               </Flex>
             </Collapse>
           ) : null}
-          <Box sx={styles.expandedSearchContainer}>
-            <SearchBox sx={styles.expandedSearch} />
-          </Box>
+          {showSearch && (
+            <Box sx={styles.expandedSearchContainer}>
+              <SearchBox sx={styles.expandedSearch} />
+            </Box>
+          )}
         </>
-      ) : (
-        <Flex sx={styles.logoBarTabletDesktop}>
+      ) : deviceType === DeviceType.Desktop ? (
+        <Box sx={styles.logoBarTabletDesktop}>
           <Logo />
-          <SearchBox sx={styles.compactSearch} />
-          {(user || officer) && <AuthLinks />}
-        </Flex>
+          {showSearch ? <SearchBox sx={styles.compactSearch} /> : <Spacer />}
+          <AuthLinks />
+        </Box>
+      ) : (
+        <Box sx={styles.logoBarTabletDesktop}>
+          <Logo />
+          {/* We don't yet have a design for Tablet that includes SearchBox */}
+          <AuthLinks />
+        </Box>
       )}
     </Flex>
   )

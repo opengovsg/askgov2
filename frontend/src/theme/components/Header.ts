@@ -40,10 +40,9 @@ export const Header: ComponentMultiStyleConfig = {
       w: '100%',
     },
     logoBarMobile: {
-      h: '64px',
       bg: 'white',
       px: 8,
-      py: 4,
+      py: 2,
       shrink: 0,
       align: 'center',
     },

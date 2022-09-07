@@ -22,6 +22,7 @@ interface AuthContextProps {
     unknown,
     { email: string; token: string }
   >
+  loginUrl?: string
   logout: () => void
 }
 
@@ -40,6 +41,8 @@ export const AuthProvider = ({
 }): JSX.Element => {
   const toast = useStyledToast()
   const userQueryResult = useWhoamiQuery()
+  const { data } = useLoginUrlQuery(userQueryResult.data)
+  const loginUrl = data?.url
   // const navigate = useNavigate()
   // const { data } = useLoginUrlQuery(userQueryResult.data)
   // const url = data?.url
@@ -61,6 +64,7 @@ export const AuthProvider = ({
     currentUser: userQueryResult.data?.currentUser ?? null,
     currentOfficer: userQueryResult.data?.currentOfficer ?? null,
     verifyOtp,
+    loginUrl,
     logout,
   }
 

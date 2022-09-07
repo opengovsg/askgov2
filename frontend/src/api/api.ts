@@ -1,6 +1,15 @@
-import wretch, {WretchResponseChain} from 'wretch'
+import wretch, { WretchResponseChain } from 'wretch'
 import QueryStringAddon from 'wretch/addons/queryString'
-import {Answer, Officer, Question, ScreenState, Tag, User, WhoamiResult} from '../data'
+import {
+  Answer,
+  Officer,
+  Question,
+  QuestionCount,
+  ScreenState,
+  Tag,
+  User,
+  WhoamiResult,
+} from '../data'
 import { API_BASE_URL } from '../constants'
 
 /**
@@ -17,13 +26,8 @@ export const api = wretch(API_BASE_URL + '/api/v1')
   .errorType('json')
 
 export function getWhoami() {
-  return api
-    .url(`/auth/whoami`)
-    .get()
-    .json<WhoamiResult>()
+  return api.url(`/auth/whoami`).get().json<WhoamiResult>()
 }
-
-
 
 export async function getQuestions(tags: string[], screenState?: ScreenState) {
   let url = api.url(`/question`)
@@ -44,6 +48,28 @@ export async function getApprovedQuestions(tags: string[]) {
     query = { tag: tags, ...query }
   }
   return url.query(query).get().json<Question[]>()
+}
+
+export async function getApprovedQuestionsPage(
+  page: number,
+  questionsPerPage: number,
+  tags: string[],
+) {
+  let url = api.url(`/question/approved`)
+  let query: object = { page, questionsPerPage }
+  if (tags.length > 0) {
+    query = { tag: tags, ...query }
+  }
+  return url.query(query).get().json<Question[]>()
+}
+
+export async function getApprovedQuestionsCount(tags: string[]) {
+  let url = api.url(`/question/approved/count`)
+  let query: object = {}
+  if (tags.length > 0) {
+    query = { tag: tags, ...query }
+  }
+  return url.query(query).get().json<QuestionCount>()
 }
 
 export async function getTags(tags: string[]) {

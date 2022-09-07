@@ -174,15 +174,13 @@ Tags currently have an important limitation: When a question has multiple tags, 
    2. If tags are used to provide some hierarchical structuring for all questions, then tags could be given a priority that defines their ordering (e.g. `MOE`, `Internal`, `Benefits`). 
 
 ## Roadmap
-Completing the following steps would bring this prototype up to the previous AskGov's level of production readiness.
-
-* Change url of the app to v2.ask.gov.sg
-* Merge officer table into user table and make two users types: PUBLIC and OFFICER. Add an agency field for officers.
+* Backend: Merge officer table into user table and make two users types: PUBLIC and OFFICER. Add an agency field for officers.
   * Consider adding Postgres Check constraints to ensure that each user type includes the necessary fields (see [stack-overflow](https://stackoverflow.com/questions/10273750/sql-conditional-not-null-constraint) and [prisma docs](https://www.prisma.io/docs/guides/database/advanced-database-tasks/data-validation/postgresql)) 
+* Backend: Clean up QuestionController.
 * Allow officer login only for whitelisted officers
 * Frontend: Use updated text for Privacy and Terms components. 
+* Frontend: Finish move from ant.design to chakra-ui components
 * Frontend: Build a ScrollToTop widget (see index.tsx 
-* Frontend: Get rid of Ant Design components
 * Add unit tests and e2e tests.
 * Use zod to generate DTOs from prisma schema and put in a shared folder
   * Requires putting prisma files in shared folder. Make sure the Prisma client doesn't get into the frontend.
@@ -198,4 +196,3 @@ Completing the following steps would bring this prototype up to the previous Ask
 * Security improvements:
   * Add [helmet](https://docs.nestjs.com/security/helmet#helmet) to the backend.
   * Improve security of OTPs by using HMAC-based OTPs (HOTPs) instead of time-based OTPs (TOTPs) and limit the number of retries.
-  * Consider using Recaptcha as it is used in AskGov.

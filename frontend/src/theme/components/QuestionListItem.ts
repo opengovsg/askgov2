@@ -1,6 +1,6 @@
 import { makeMultiStyleConfig } from './helpers'
 
-export const PostItem = makeMultiStyleConfig({
+export const QuestionListItem = makeMultiStyleConfig({
   container: {
     justifyContent: 'space-between',
     py: '24px',

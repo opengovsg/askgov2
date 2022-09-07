@@ -12,7 +12,7 @@ interface SpinnerProps extends ChakraSpinnerProps {
 const Spinner = (props: SpinnerProps): JSX.Element => {
   return (
     <Center w={props.centerWidth} h={props.centerHeight}>
-      <ChakraSpinner {...props} />
+      <ChakraSpinner w={props.centerWidth} h={props.centerHeight} />
     </Center>
   )
 }
