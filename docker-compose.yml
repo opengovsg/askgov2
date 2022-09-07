@@ -14,12 +14,6 @@ services:
       - './.localstack:/tmp/localstack'
       - '/var/run/docker.sock:/var/run/docker.sock'
 
-  maildev:
-    image: maildev/maildev
-    ports:
-      - '1080:80'
-      - '1025:25'
-
   db:
     image: "postgres:14-alpine"
     environment:
@@ -30,16 +24,6 @@ services:
       - "5432:5432"
     volumes:
       - askgov_data:/var/lib/postgresql/data
-
-  opensearch:
-    image: opensearchproject/opensearch:1.1.0
-    container_name: askgovsg_os
-    environment:
-      - "discovery.type=single-node"
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-    ports:
-      - 9200:9200
-      - 9600:9600 # required for Performance Analyzer
 
 volumes:
   askgov_data:
