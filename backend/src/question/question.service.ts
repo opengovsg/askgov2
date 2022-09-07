@@ -68,11 +68,10 @@ export class QuestionService {
     return this.prisma.question.findMany(params)
   }
 
-  async findByTagAndScreenState(
-    userId?: number,
+  async getQuestionWhere(
     tagQuery?: string | string[],
     screenState?: string,
-  ) {
+  ): Promise<QuestionWhereInput | undefined> {
     let where: QuestionWhereInput | undefined = {}
     const tags = await this.tagService.tagQueryToTagsOrThrow(tagQuery)
     if (tags.length > 0) {
@@ -95,7 +94,10 @@ export class QuestionService {
         )
       }
     }
+    return where
+  }
 
+  getQuestionSelect(userId?: number): QuestionSelect {
     let questionSelect: QuestionSelect = {
       id: true,
       body: true,
@@ -158,10 +160,25 @@ export class QuestionService {
     //   select: answerSelect,
     // }
 
+    return questionSelect
+  }
+
+  async findByTagAndScreenState(
+    page: number,
+    questionsPerPage: number,
+    userId?: number,
+    tagQuery?: string | string[],
+    screenState?: string,
+  ) {
+    const where = await this.getQuestionWhere(tagQuery, screenState)
+    const select = this.getQuestionSelect(userId)
+
     const found = this.findMany({
+      skip: (page - 1) * questionsPerPage,
+      take: questionsPerPage,
       where,
       orderBy: { createdAt: 'desc' },
-      select: questionSelect,
+      select,
     })
 
     return found
@@ -169,6 +186,17 @@ export class QuestionService {
     //   const { id, body, screenState, createdAt, updatedAt, authorId, include } = question
     //   return {id: q.id, body, screenState, createdAt: }
     // })
+  }
+
+  async countByTagAndScreenState(
+    tagQuery?: string | string[],
+    screenState?: string,
+  ) {
+    const where = await this.getQuestionWhere(tagQuery, screenState)
+    return this.prisma.question.count({
+      where,
+      select: { _all: true },
+    })
   }
 
   findOne(id: number, include?: QuestionInclude) {

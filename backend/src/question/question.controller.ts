@@ -33,6 +33,8 @@ import { Tag } from '../tag'
 import { OfficerService } from '../officer'
 import { Question } from '@prisma/client'
 
+const DEFAULT_QUESTIONS_PER_PAGE = '200' // Set rather high to get old ant.design interface to work ok.
+
 @Controller({ path: 'question', version: '1' })
 export class QuestionController {
   private readonly logger = new Logger(QuestionController.name)
@@ -62,11 +64,16 @@ export class QuestionController {
   @UseGuards(OfficerGuard)
   async findMany(
     @Session() session: Request['session'],
+    @Query('page') page: string = '1',
+    @Query('questionsPerPage')
+    questionsPerPage: string = DEFAULT_QUESTIONS_PER_PAGE,
     @Query('tag') tagQuery?: string | string[],
     @Query('screenState') screenState?: string,
   ) {
     const { userId } = session
     return this.questionService.findByTagAndScreenState(
+      parseInt(page),
+      parseInt(questionsPerPage),
       userId,
       tagQuery,
       screenState,
@@ -76,11 +83,28 @@ export class QuestionController {
   @Get('approved')
   async findApproved(
     @Session() session: Request['session'],
+    @Query('page') page: string = '1',
+    @Query('questionsPerPage')
+    questionsPerPage: string = DEFAULT_QUESTIONS_PER_PAGE,
     @Query('tag') tagQuery?: string | string[],
   ) {
     const { userId } = session
     return this.questionService.findByTagAndScreenState(
+      parseInt(page),
+      parseInt(questionsPerPage),
       userId,
+      tagQuery,
+      ScreenState.APPROVED,
+    )
+  }
+
+  @Get('approved/count')
+  async findApprovedCount(
+    @Session() session: Request['session'],
+    @Query('tag') tagQuery?: string | string[],
+  ) {
+    const { userId } = session
+    return this.questionService.countByTagAndScreenState(
       tagQuery,
       ScreenState.APPROVED,
     )
